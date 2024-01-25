@@ -1,0 +1,86 @@
+import { NextApiRequest, NextApiResponse } from "next";
+import { connectMongo } from '../../../utils/mongodb';
+import UserModel from '../../../models/user.model';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+import { env } from "../../../environments/index";
+
+const { JWT_KEY, ACCESS_COOKIE_EXPIRY } = env;
+
+const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
+  if (_req.method != "POST") {
+    res.status(405).json({
+      success: false,
+      message: "Invalid Method",
+    });
+    return;
+  }
+  connectMongo()
+  try {
+    const { email, password } = _req.body;
+
+    if (!(email && password)) {
+      res.status(400).json({
+        success: false,
+        message: "Compulsory fields are not filled!",
+      });
+      return;
+    }
+
+    const user = await UserModel.findOne({email : email}).exec();
+    if (user === null) {
+      res.status(404).json({
+        success: false,
+        message: "User not available",
+      });
+      return;
+    }
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      res.status(401).json({
+        success: false,
+        message: "Password is not Correct",
+      });
+      return;
+    }
+    user.password = undefined;
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        name: user.fullName,
+      },
+      JWT_KEY,
+      {
+        expiresIn: "24h",
+      }
+    );
+
+    res.setHeader(
+      "Set-Cookie",
+      `token=${token}; path=/; expires=${new Date(
+        Date.now() + ACCESS_COOKIE_EXPIRY
+      ).toUTCString()}`
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Credetials Acceepted",
+      token: token,
+      data: user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+  return;
+};
+export default handler;
+
+
+
+
