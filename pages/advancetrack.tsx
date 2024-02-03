@@ -5,6 +5,7 @@ import {
   MarkerF,
   InfoWindowF,
 } from "@react-google-maps/api";
+import Image from "next/image";
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
@@ -59,16 +60,17 @@ export default function MyComponent() {
       const vehicleNo = "MP09QR9091";
       try {
         const response = await fetch(
-          "http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}"
+          `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
         );
 
         const data = await response.json();
         console.log("dataaa", data.selectedVehicle);
 
-        const dataArray = [];
+        const dataArray: { latitude: number; longitude: number; speed: any }[] =
+          [];
 
         if (data && Array.isArray(data.selectedVehicle)) {
-          data.selectedVehicle.forEach((object) => {
+          data.selectedVehicle.forEach((object: any) => {
             if (
               object.Latitude !== undefined &&
               object.Latitude !== 0 &&
@@ -103,11 +105,17 @@ export default function MyComponent() {
       try {
         if (FetchData.length > 0) {
           const snappedRoadPath = await Promise.all(
-            FetchData.map(async (point) => ({
-              lat: parseFloat(point.latitude),
-              lng: parseFloat(point.longitude),
-              speed: point.speed,
-            }))
+            FetchData.map(
+              async (point: {
+                latitude: string;
+                longitude: string;
+                speed: any;
+              }) => ({
+                lat: parseFloat(point.latitude),
+                lng: parseFloat(point.longitude),
+                speed: point.speed,
+              })
+            )
           );
 
           const speedData = snappedRoadPath.map((point) => point.speed);
@@ -220,7 +228,7 @@ export default function MyComponent() {
     if (FetchData.length > 0 && !mapInitialized) {
       initMap();
     }
-  }, [FetchData, mapInitialized]);
+  }, [FetchData, googleMap, mapInitialized]);
 
   const findHoveredIndex = (event: any, path: any[]) => {
     const latLng = event.latLng;
@@ -240,7 +248,7 @@ export default function MyComponent() {
     return closestIndex;
   };
 
-  const determineRouteColor = async (speedData) => {
+  const determineRouteColor = async (speedData: string | any[]) => {
     const colors = [];
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
@@ -280,21 +288,17 @@ export default function MyComponent() {
           >
             <div className="w-80 p-2">
               <div className="flex items-center mb-2 space-x-5">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   style={{ width: "56px", height: "56px", borderRadius: "50%" }}
+                  alt=""
                 />
                 <div>
-                  <h3 className="text-xl-font-bold">some title</h3>
-                  <p>some subtitle</p>
+                  <h3 className="text-xl-font-bold">Hyundai</h3>
+                  <p>Creta</p>
                 </div>
               </div>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Voluptate, dolor nisi accusantium quia tenetur voluptatum.
-                Laudantium suscipit dolores, obcaecati placeat autem voluptas
-                libero aspernatur maiores ex aut, dignissimos quia inventore.
-              </p>
+              <p>MP09CZ1111</p>
             </div>
           </InfoWindowF>
         )}

@@ -59,15 +59,14 @@ export default function MyComponent() {
       const vehicleNo = "MP09QR9091";
       const startDate = "23/01/2024";
       const endDate = "23/01/2024";
-      const apiUrl =
-        "http://localhost:8000/api/v1/fetchvehicleGyroData?vehicleNo=${vehicleNo}&startDate=${startDate}&endDate=${endDate}";
+      const apiUrl = `http://localhost:8000/api/v1/fetchvehicleGyroData?vehicleNo=${vehicleNo}&startDate=${startDate}&endDate=${endDate}`;
 
       try {
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
           console.error(
-            "HTTP error! Status: ${response.status}, URL: ${response.url}"
+            `HTTP error! Status: ${response.status}, URL: ${response.url}`
           );
           return;
         }

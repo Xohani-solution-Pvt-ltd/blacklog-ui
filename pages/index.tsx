@@ -1,5 +1,5 @@
+import React, { useEffect, useMemo, useState } from "react";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-// import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button, Col, Row, Container } from "react-bootstrap";
 import { useRouter } from "next/router";
@@ -16,7 +16,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import React, { useEffect, useMemo, useState } from "react";
+
 import {
   GoogleMap,
   useLoadScript,
@@ -45,6 +45,16 @@ export const options = {
       display: true,
     },
   },
+  elements: {
+    line: {
+      tension: 0.4,
+      borderWidth: 2,
+      borderCapStyle: "round",
+    },
+  },
+  maintainAspectRatio: false,
+  height: 400,
+  width: 800,
 };
 
 const labels = [
@@ -191,7 +201,7 @@ const Dashboard = () => {
 
   const containerStyle = {
     width: "100%",
-    height: "90vh",
+    height: "50vh",
   };
 
   const onMapLoad = async (map: google.maps.Map) => {
@@ -312,27 +322,53 @@ const Dashboard = () => {
       <Layout />
       <div className="underlineStyle">
         <Row className="dashboard-style" style={{ marginTop: "70px" }}>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <h4 className="pt-4">Dashboard</h4>
           </Col>
-          <Col sm={6}></Col>
+          {/* <Col sm={6} xs={12}></Col> */}
         </Row>
       </div>
       <div className="another-deatils underlineStyle">
         <Row>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <Row>
-              <Col sm={6}>
-                <h6 className="pt-2">FLEET PERFORMANCE</h6>
+              <Col sm={6} xs={12}>
+                <h6
+                  className="pt-2"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  FLEET PERFORMANCE
+                </h6>
               </Col>
-              <Col sm={6}>
-                <h6 className="pt-2">Vehicle and Fuel Usage</h6>
+              <Col sm={6} xs={12}>
+                <h6
+                  className="pt-2"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  Vehicle and Fuel Usage
+                </h6>
               </Col>
               <div
                 className="row"
-                style={{ marginTop: "60px", marginLeft: "60px" }}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: "60px",
+                }}
               >
-                <div className="col-md-6" style={{ display: "flex" }}>
+                <div
+                  className="col-md-6"
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
                   <div>
                     <div className="progress blue">
                       <span className="progress-left">
@@ -369,9 +405,9 @@ const Dashboard = () => {
               </div>
             </Row>
           </Col>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <div className="pt-2">
-              <Button className=" me-3 text-black border-0 btn-hover">
+              <Button className="me-3 text-black border-0 btn-hover">
                 Daily
               </Button>
               <Button className="me-3 text-black border-0 btn-hover">
@@ -401,6 +437,7 @@ const Dashboard = () => {
                   gestureHandling={"greedy"}
                 ></Map>
               </APIProvider> */}
+
               <GoogleMap
                 mapContainerStyle={containerStyle}
                 options={options}
@@ -434,6 +471,8 @@ const Dashboard = () => {
                                   borderRadius: "50%",
                                 }}
                                 alt=""
+                                width={56}
+                                height={56}
                               />
                               <div>
                                 <h4 className="text-xl-font-bold">
@@ -465,7 +504,7 @@ const Dashboard = () => {
               </GoogleMap>
             </div>
           </Col>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <BsGearFill />

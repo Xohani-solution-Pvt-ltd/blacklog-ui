@@ -4,11 +4,6 @@ import Layout from "@/components/Layout";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import axios from "axios";
 
-// const CarName = ({ car, onSelectCar }) => (
-//   <li className="carItem" onClick={() => onSelectCar(car)}>
-//     <p className="carItem">{car.vehicleNo}</p>
-//   </li>
-// );
 const CarName = ({ car, onSelectCar, onDeleteCar }) => (
   <li className="carItem">
     <p onClick={() => onSelectCar(car)}>{car.vehicleNo}</p>
@@ -20,13 +15,6 @@ const CarName = ({ car, onSelectCar, onDeleteCar }) => (
     </button>
   </li>
 );
-
-// const CarName = ({ car, onSelectCar, onDeleteCar }) => (
-//   <li className="carItem" style={{ display: "flex", alignItems: "center" }}>
-//     <p onClick={() => onSelectCar(car)}>{car.vehicleNo}</p>
-//     <button style={{ backgroundColor: "red", marginLeft: "10px" }} onClick={() => onDeleteCar(car.id)}>Delete</button>
-//   </li>
-// );
 
 const CarDetails = ({ car }) => (
   <div>
@@ -78,7 +66,7 @@ const Vehicles = () => {
   const onDeleteCar = (carId: any) => {
     console.log("Deleting car with ID:", carId);
     axios
-      .delete(`http://localhost:8000/api/v1/removeVehicle/${carId}`)
+      .delete(`http://localhost:8000/api/v1/removeVehicle?id=${carId}`)
       .then(() => {
         console.log("Car deleted successfully");
         setCarNames((prevCars) => prevCars.filter((car) => car.id !== carId));

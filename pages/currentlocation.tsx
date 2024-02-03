@@ -42,12 +42,12 @@ export default function MyComponent() {
     const fetchCar = async () => {
       const vehicleNo = "MP09QR9091";
       const apiUrl =
-        "http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}";
+        `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`;
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
           console.error(
-            "HTTP error! Status: ${response.status}, URL: ${response.url}"
+            `HTTP error! Status: ${response.status}, URL: ${response.url}`
           );
           return;
         }

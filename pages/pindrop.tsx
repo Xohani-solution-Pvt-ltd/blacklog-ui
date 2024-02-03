@@ -72,12 +72,12 @@ export default function MyComponent() {
 
       for (const vehicleNo of vehicleNumbers) {
         const apiUrl =
-          "http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}";
+          `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`;
         try {
           const response = await fetch(apiUrl);
           if (!response.ok) {
             console.error(
-              "HTTP error! Status: ${response.status}, URL: ${response.url}"
+              `HTTP error! Status: ${response.status}, URL: ${response.url}`
             );
             return;
           }
@@ -108,7 +108,7 @@ export default function MyComponent() {
     try {
       const vehicleNo = marker.vehicleNo;
       const apiUrl =
-        "http://localhost:8000/api/v1/fetchsingleCar?vehicleNo=${vehicleNo}";
+        `http://localhost:8000/api/v1/fetchsingleCar?vehicleNo=${vehicleNo}`;
 
       const response = await fetch(apiUrl);
       const data = await response.json();
