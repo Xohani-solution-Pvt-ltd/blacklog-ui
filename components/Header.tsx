@@ -72,7 +72,7 @@ export default function Header() {
             </Nav.Link>
           </Nav>
 
-          <div className="btns-nav">
+          <div className="btns-nav ml-auto">
             <Button className="display-4 me-3">
               <Nav.Link href="/map" className="text-white">
                 View Map

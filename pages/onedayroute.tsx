@@ -43,12 +43,10 @@ export default function MyComponent() {
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
-  // const handleCarSelection = (selectedCar) => {
-  //   setVehicleNumber(selectedCar.vehicleNo);
-  // };
+
   const handleCarSelection = (selectedCar) => {
     setVehicleNumber(selectedCar.vehicleNo);
-    setSelectedVehicle(selectedCar); // Add this line to set the selected vehicle
+    setSelectedVehicle(selectedCar);
   };
 
   useEffect(() => {
@@ -71,12 +69,10 @@ export default function MyComponent() {
     width: "100%",
     height: "90vh",
   };
-  // const onMapLoad = async (map: google.maps.Map) => {
-  //   setGoogleMap(map);
-  // };
+
   const onMapLoad = async (map: google.maps.Map) => {
     setGoogleMap(map);
-    setMapInitialized(false); // Reset map initialization
+    setMapInitialized(false);
   };
 
   const options = useMemo<google.maps.MapOptions>(
@@ -92,24 +88,13 @@ export default function MyComponent() {
     []
   );
 
-  // const center = useMemo(
-  //   () => ({
-  //     lat: FetchData.length > 0 ? parseFloat(FetchData[0].latitude) : 0,
-  //     lng: FetchData.length > 0 ? parseFloat(FetchData[0].longitude) : 0,
-  //   }),
-  //   [FetchData]
-  // );
-  const center = useMemo(
-    () => {
-      console.log("Selected Vehicle:", selectedVehicle);
-      const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
-      const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-      console.log("Center:", { lat, lng });
-      return { lat, lng };
-    },
-    [selectedVehicle]
-  );
-  
+  const center = useMemo(() => {
+    console.log("Selected Vehicle:", selectedVehicle);
+    const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
+    const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
+    console.log("Center:", { lat, lng });
+    return { lat, lng };
+  }, [selectedVehicle]);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,

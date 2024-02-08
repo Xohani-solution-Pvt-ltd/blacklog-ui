@@ -23,7 +23,7 @@ const TrackDevice = () => {
   return (
     <>
       <Container fluid>
-        <Navbar className="blacklog_style bg-dark fixed-top" expand="lg">
+        <Navbar className="bg-dark fixed-top" expand="lg">
           <Navbar.Brand className="tracing_live">
             <Image
               className="track-logo"
@@ -33,10 +33,11 @@ const TrackDevice = () => {
           </Navbar.Brand>
           <Navbar.Toggle
             aria-controls="responsive-navbar-nav"
-            className="btn btn-danger"
+            className="btn"
+            style={{ background: "white" }}
           />
           <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="backs ml auto">
+            <Nav className="ml auto">
               {/* Tracking */}
               <div>
                 <Image
@@ -53,9 +54,6 @@ const TrackDevice = () => {
                 >
                   <NavDropdown.Item href="/advancetracking">
                     Advance Tracking
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/detaildashboard">
-                    Detail Dashboard
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/dashboard">
                     Dashboard
@@ -90,12 +88,6 @@ const TrackDevice = () => {
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/inactivesummary">
                     Inactive Summary
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/digitalportsummary">
-                    Digital Port Summary
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/speedvsdistance">
-                    Speed vs Distance
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/vehiclelocation">
                     Vehicle Location
@@ -132,9 +124,6 @@ const TrackDevice = () => {
                   <NavDropdown.Item href="/temperaturechart">
                     Geofence Visited Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/temperaturestatus">
-                    Geofence Wise Trip Summary
-                  </NavDropdown.Item>
                 </NavDropdown>
               </div>
 
@@ -155,17 +144,8 @@ const TrackDevice = () => {
                   <NavDropdown.Item href="/temperaturedashboard">
                     Temperature Dashboard
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/temperaturechart">
-                    Temperature Chart
-                  </NavDropdown.Item>
                   <NavDropdown.Item href="/temperaturestatus">
                     Temperature Status
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/temperaturesummary">
-                    Temperature Summary
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/temperaturedetailsummary">
-                    Temperature Detail Summary
                   </NavDropdown.Item>
                 </NavDropdown>
               </div>

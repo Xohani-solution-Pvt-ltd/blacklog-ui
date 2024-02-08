@@ -157,7 +157,7 @@ const Dashboard = () => {
   }, []);
 
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY as string;
-  console.log("mapApiKey", mapApiKey);
+  // console.log("mapApiKey", mapApiKey);
 
   const handleInputChange = (event: { target: { value: any } }) => {
     const value = event.target.value;
@@ -341,7 +341,7 @@ const Dashboard = () => {
                     alignItems: "center",
                   }}
                 >
-                  FLEET PERFORMANCE
+                  Fleet Performance
                 </h6>
               </Col>
               <Col sm={6} xs={12}>
