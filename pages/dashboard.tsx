@@ -1,6 +1,5 @@
-import Link from "next/link";
+import React, { useEffect, useMemo, useState } from "react";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button, Col, Row, Container } from "react-bootstrap";
 import { useRouter } from "next/router";
@@ -17,6 +16,14 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+
+import {
+  GoogleMap,
+  useLoadScript,
+  Marker as MarkerF,
+  InfoWindow as InfoWindowF,
+} from "@react-google-maps/api";
+import Image from "next/image";
 
 ChartJS.register(
   CategoryScale,
@@ -36,9 +43,18 @@ export const options = {
     },
     title: {
       display: true,
-      // text: "Chart.js Line Chart",
     },
   },
+  elements: {
+    line: {
+      tension: 0.4,
+      borderWidth: 2,
+      borderCapStyle: "round",
+    },
+  },
+  maintainAspectRatio: false,
+  height: 400,
+  width: 800,
 };
 
 const labels = [
@@ -120,7 +136,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("YOUR_API_ENDPOINT_HERE");
+        const response = await fetch("");
         if (response.ok) {
           const data = await response.json();
           setProgressData({
@@ -141,7 +157,7 @@ const Dashboard = () => {
   }, []);
 
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY as string;
-  console.log("mapApiKey", mapApiKey);
+  // console.log("mapApiKey", mapApiKey);
 
   const handleInputChange = (event: { target: { value: any } }) => {
     const value = event.target.value;
@@ -175,49 +191,184 @@ const Dashboard = () => {
     }
   };
 
+  // pins on map start
+
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
+  const libraries = useMemo(() => ["geometry"], []);
+  const [vehicleNumbers, setVehicleNumbers] = useState<string[]>([]);
+  const [markers, setMarkers] = useState<any[]>([]);
+
+  const containerStyle = {
+    width: "100%",
+    height: "50vh",
+  };
+
+  const onMapLoad = async (map: google.maps.Map) => {
+    setGoogleMap(map);
+  };
+
+  const options = useMemo<google.maps.MapOptions>(
+    () => ({
+      mapId: process.env.REACT_MAP_ID,
+      mapTypeControl: false,
+      zoomControl: false,
+      fullscreenControl: false,
+      clickableIcons: false,
+      scrollwheel: true,
+      streetViewControl: false,
+    }),
+    []
+  );
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
+    libraries: libraries as any,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/v1/fetchCar");
+        const data = await response.json();
+        const dataArray = [];
+        // console.log('d====', data);
+        if (data && Array.isArray(data.data)) {
+          data.data.forEach((object: any) => {
+            const formattedData = {
+              vehicleNo: object.vehicleNo,
+            };
+            dataArray.push(formattedData);
+          });
+          setVehicleNumbers(dataArray.map((item) => item.vehicleNo));
+        }
+      } catch (error) {
+        console.error("Error Fetching Data", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchCar = async () => {
+      if (vehicleNumbers.length === 0) {
+        return;
+      }
+      const markersArray = [];
+
+      for (const vehicleNo of vehicleNumbers) {
+        const apiUrl = `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`;
+        try {
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            console.error(
+              `HTTP error! Status: ${response.status}, URL: ${response.url}`
+            );
+            return;
+          }
+          const data = await response.json();
+
+          const lastVehicle =
+            data.selectedVehicle[data.selectedVehicle.length - 1];
+
+          const marker = {
+            vehicleNo: lastVehicle.vehicleNo,
+            position: {
+              lat: parseFloat(lastVehicle.Latitude),
+              lng: parseFloat(lastVehicle.Longitude),
+            },
+          };
+          markersArray.push(marker);
+        } catch (error) {
+          console.error("Error fetching vehicle data:", error);
+        }
+      }
+      setMarkers(markersArray);
+    };
+
+    fetchCar();
+  }, [vehicleNumbers]);
+
+  const handleMarkerClick = async (marker: any) => {
+    try {
+      const vehicleNo = marker.vehicleNo;
+      const apiUrl = `http://localhost:8000/api/v1/fetchsingleCar?vehicleNo=${vehicleNo}`;
+
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      const selectedVehicle = data.vehicleData[data.vehicleData.length - 1];
+      setSelectedMarker({
+        details: {
+          imageUrl: selectedVehicle.image,
+          model: selectedVehicle.model,
+          year: selectedVehicle.year,
+          vehicleNo: selectedVehicle.vehicleNo,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching vehicle details:", error);
+    }
+  };
+
+  if (!isLoaded) {
+    return <p>Loading...</p>;
+  }
+  console.log("Image URL:", selectedMarker);
+
+  // pins on map end
+
   return (
     <>
       <Layout />
       <div className="underlineStyle">
         <Row className="dashboard-style" style={{ marginTop: "70px" }}>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <h4 className="pt-4">Dashboard</h4>
           </Col>
-          <Col sm={6}>
-            <div className="search-bar-container pt-4">
-              <input
-                type="text"
-                value={searchValue}
-                onChange={handleInputChange}
-                placeholder="what are you looking for"
-                className="search-input"
-              />
-              <ul className="auto-suggestions">
-                {autoSuggestions.map((suggestion, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Col>
+          {/* <Col sm={6} xs={12}></Col> */}
         </Row>
       </div>
       <div className="another-deatils underlineStyle">
         <Row>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <Row>
-              <Col sm={6}>
-                <h6 className="pt-2">FLEET PERFORMANCE</h6>
+              <Col sm={6} xs={12}>
+                <h6
+                  className="pt-2"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  Fleet Performance
+                </h6>
               </Col>
-              <Col sm={6}>
-                <h6 className="pt-2">Vehicle and Fuel Usage</h6>
+              <Col sm={6} xs={12}>
+                <h6
+                  className="pt-2"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  Vehicle and Fuel Usage
+                </h6>
               </Col>
-              <div className="row  ">
-                <div className="col-md-6" style={{ display: "flex" }}>
+              <div
+                className="row"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: "60px",
+                }}
+              >
+                <div
+                  className="col-md-6"
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
                   <div>
                     <div className="progress blue">
                       <span className="progress-left">
@@ -254,9 +405,9 @@ const Dashboard = () => {
               </div>
             </Row>
           </Col>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <div className="pt-2">
-              <Button className=" me-3 text-black border-0 btn-hover">
+              <Button className="me-3 text-black border-0 btn-hover">
                 Daily
               </Button>
               <Button className="me-3 text-black border-0 btn-hover">
@@ -265,7 +416,9 @@ const Dashboard = () => {
               <Button className="me-3 text-black border-0 btn-hover">
                 Monthly
               </Button>
-              <h6 className="float-end">Usage in Total Work Hour</h6>
+              <h6 className="float-end mbl-heading">
+                Usage in Total Work Hour
+              </h6>
             </div>
             <Line options={options} data={data} />
           </Col>
@@ -275,18 +428,83 @@ const Dashboard = () => {
         <Row>
           <Col className="pt-2" sm={6}>
             <h6>MAP</h6>
-            <div style={{ height: "40vh", padding: "5" }}>
-              <APIProvider apiKey={mapApiKey}>
+            <div style={{ height: "50vh", padding: "5" }}>
+              {/* <APIProvider apiKey={mapApiKey}>
                 <Map
                   zoom={5}
                   zoomControl={true}
                   center={{ lat: 20.5937, lng: 78.9629 }}
                   gestureHandling={"greedy"}
                 ></Map>
-              </APIProvider>
+              </APIProvider> */}
+
+              <GoogleMap
+                mapContainerStyle={containerStyle}
+                options={options}
+                center={
+                  markers.length > 0 ? markers[0].position : { lat: 0, lng: 0 }
+                }
+                onLoad={onMapLoad}
+                zoom={10}
+                onClick={() => setSelectedMarker(null)}
+              >
+                {markers.map((marker) => (
+                  <MarkerF
+                    key={marker.vehicleNo}
+                    position={marker.position}
+                    cursor="pointer"
+                    onClick={() => handleMarkerClick(marker)}
+                  >
+                    {selectedMarker &&
+                      selectedMarker.details.vehicleNo === marker.vehicleNo && (
+                        <InfoWindowF
+                          onCloseClick={() => setSelectedMarker(null)}
+                          position={marker.position}
+                        >
+                          <div className="w-80 p-2">
+                            <div className="flex items-center mb-2 space-x-5">
+                              <Image
+                                src={selectedMarker.details.imageUrl}
+                                style={{
+                                  width: "56px",
+                                  height: "56px",
+                                  borderRadius: "50%",
+                                }}
+                                alt=""
+                                width={56}
+                                height={56}
+                              />
+                              <div>
+                                <h4 className="text-xl-font-bold">
+                                  vehicleNo : {selectedMarker.details.vehicleNo}
+                                </h4>
+                                <h4 className="text-xl-font-bold">
+                                  {" "}
+                                  Model : {selectedMarker.details.model}
+                                </h4>
+                                <h4 className="text-xl-font-bold">
+                                  {" "}
+                                  year : {selectedMarker.details.year}
+                                </h4>
+                              </div>
+                            </div>
+                            {/* <p>
+                              Lorem ipsum dolor sit amet, consectetur
+                              adipisicing elit. Voluptate, dolor nisi
+                              accusantium quia tenetur voluptatum. Laudantium
+                              suscipit dolores, obcaecati placeat autem voluptas
+                              libero aspernatur maiores ex aut, dignissimos quia
+                              inventore.
+                            </p> */}
+                          </div>
+                        </InfoWindowF>
+                      )}
+                  </MarkerF>
+                ))}
+              </GoogleMap>
             </div>
           </Col>
-          <Col sm={6}>
+          <Col sm={6} xs={12}>
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <BsGearFill />
