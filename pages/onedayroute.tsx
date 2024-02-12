@@ -89,10 +89,8 @@ export default function MyComponent() {
   );
 
   const center = useMemo(() => {
-    console.log("Selected Vehicle:", selectedVehicle);
     const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
     const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-    console.log("Center:", { lat, lng });
     return { lat, lng };
   }, [selectedVehicle]);
 
@@ -103,11 +101,6 @@ export default function MyComponent() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // const vehicleNo = "MP09QR9091";
-      // const Date = "23/01/2024";
-      // const apiUrl =
-      //   `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNo}&Date=${Date}`;
-
       const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNumber}&Date=${selectedDate}`;
 
       try {
@@ -119,12 +112,10 @@ export default function MyComponent() {
           return;
         }
         const data = await response.json();
-        console.log("mydata", data);
-
+        console.log("mydata====", data);
         const dataArray = [];
-
-        if (data && Array.isArray(data.fetchdata)) {
-          data.fetchdata.forEach((object) => {
+        if (data?.data && Array.isArray(data.data)) {
+          data.data.forEach((object) => {
             if (
               object.Latitude !== undefined &&
               object.Latitude !== 0 &&
@@ -147,8 +138,9 @@ export default function MyComponent() {
           });
         }
         setFetchData(dataArray);
+        // console.log("mydata=", FetchData)
       } catch (error) {
-        console.log("Error:", error.message);
+        console.log("Error:", error);
       }
     };
     fetchData();
@@ -345,9 +337,9 @@ export default function MyComponent() {
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}
-          center={center}
+          center={{ lat: 20.5937, lng: 78.9629 }}
           onLoad={onMapLoad}
-          zoom={10}
+          zoom={15}
           onClick={() => setIsInfoWindowOpen(false)}
         >
           {selectedVehicle && (

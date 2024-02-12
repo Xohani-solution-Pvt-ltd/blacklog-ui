@@ -25,7 +25,7 @@ const Signup = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://65.0.85.221/api/v1/register",
+        "http://localhost:8000/api/v1/register",
         user
       );
       console.log("signup success", response.data);
