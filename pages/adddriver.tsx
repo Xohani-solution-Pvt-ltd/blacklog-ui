@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import Layout from "@/components/Layout";
 
 const Adddriver = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +11,7 @@ const Adddriver = () => {
     emergencyContact: "",
     licenseNo: "",
     car: "",
-    photo:"",
+    photo: "",
   });
 
   const handleChange = (e: any) => {
@@ -41,7 +42,7 @@ const Adddriver = () => {
     }
   };
 
-  const handleFileChange = (e:any) => {
+  const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     setFormData({ ...formData, photo: file });
   };
@@ -63,7 +64,11 @@ const Adddriver = () => {
 
   return (
     <>
-      <div className="d-flex justify-content-center">
+      <Layout />
+      <div
+        className="d-flex justify-content-center"
+        style={{ marginTop: "80px" }}
+      >
         <Row className="pt-3">
           <h5>Add Driver Details</h5>
           <Form onSubmit={handleSubmit}>
@@ -113,7 +118,7 @@ const Adddriver = () => {
             </Col>
             <Col sm={12}>
               <Form.Group controlId="formName">
-                <Form.Label>EmergencyContact</Form.Label>
+                <Form.Label>Emergency Contact</Form.Label>
                 <Form.Control
                   type="text"
                   name="emergencyContact"
@@ -124,7 +129,7 @@ const Adddriver = () => {
             </Col>
             <Col sm={12}>
               <Form.Group controlId="formName">
-                licenseNo
+                license No
                 <Form.Label></Form.Label>
                 <Form.Control
                   type="text"
@@ -136,7 +141,7 @@ const Adddriver = () => {
             </Col>
             <div className="pt-3">
               <Form.Label column sm={3}>
-                upload Photo(150px*150px)
+                Upload Photo
               </Form.Label>
               <Col sm={5}>
                 <Form.Control
@@ -169,4 +174,3 @@ export default Adddriver;
 function fetchData() {
   throw new Error("Function not implemented.");
 }
-
