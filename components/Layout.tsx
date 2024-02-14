@@ -4,16 +4,12 @@ import Head from "next/head";
 import Header from "./Header";
 import { LayoutProps } from "../interfaces/index";
 import { Container } from "react-bootstrap";
-import router from "next/router";
-import Login from "@/pages/login";
-
 
 const Layout = ({
   children,
   title = "This is the default title",
 }: LayoutProps) => {
   const router = useRouter();
-  
 
   return (
     <>
@@ -41,6 +37,5 @@ const StaticLayout = ({
     </>
   );
 };
-export { StaticLayout }
+export { StaticLayout };
 export default Layout;
-

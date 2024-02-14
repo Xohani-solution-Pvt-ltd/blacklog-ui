@@ -52,7 +52,7 @@ const TrackDevice = () => {
                   id="nav-dropdown-autoclose-true"
                   title={<span style={customTitleStyle}>Tracking</span>}
                 >
-                  <NavDropdown.Item href="/advancetracking">
+                  <NavDropdown.Item href="/Tracking/advancetrack">
                     Advance Tracking
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/dashboard">
@@ -74,22 +74,22 @@ const TrackDevice = () => {
                   id="nav-dropdown-autoclose-true"
                   title={<span style={customTitleStyle}>Reports</span>}
                 >
-                  <NavDropdown.Item href="/travelsummary">
+                  <NavDropdown.Item href="/Reports/datewiseroute">
                     Travel Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/tripsummary">
+                  <NavDropdown.Item href="/onedayroute">
                     Trip Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/stoppagesummary">
+                  <NavDropdown.Item href="/Reports/stoppagesummary">
                     Stoppage Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/idlesummary">
+                  <NavDropdown.Item href="/Reports/idlesummary">
                     Idle Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/inactivesummary">
+                  <NavDropdown.Item href="/Reports/inactivesummary">
                     Inactive Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/vehiclelocation">
+                  <NavDropdown.Item href="/Reports/currentlocation">
                     Vehicle Location
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/vehiclestatus">
