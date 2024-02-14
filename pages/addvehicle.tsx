@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import Layout from "@/components/Layout";
 
 const AddVehicle = () => {
   const [vehicleNo, setVehicleNo] = useState("");
@@ -36,7 +37,11 @@ const AddVehicle = () => {
 
   return (
     <>
-      <div className="d-flex justify-content-center">
+      <Layout />
+      <div
+        className="d-flex justify-content-center"
+        style={{ marginTop: "80px" }}
+      >
         <Row className="pt-3">
           <h5>Add Vehicle Details</h5>
           <Form onSubmit={handleSubmit}>

@@ -534,6 +534,20 @@ const Dashboard = () => {
           </Col>
         </Row>
       </div>
+      <div className="bottom-0 end-0 p-3">
+        <Button
+          href="/addvehicle"
+          className="me-3 text-black border-0 btn-hover"
+        >
+          Add Vehicle
+        </Button>
+        <Button
+          href="/adddriver"
+          className="me-3 text-black border-0 btn-hover"
+        >
+          Add Driver
+        </Button>
+      </div>
     </>
   );
 };
