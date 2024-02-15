@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import { LoadScript, GoogleMap, Polygon } from "@react-google-maps/api";
 import Layout from "@/components/Layout";
 
+type geoFenceTypes = {
+  lat: number;
+  lng: number;
+};
 
 const Geofence = () => {
-  const [geofencePath, setGeofencePath] = useState([
+  const [geofencePath, setGeofencePath] = useState<geoFenceTypes[]>([
     { lat: 37.7749, lng: -122.4194 },
   ]);
 
@@ -22,30 +26,31 @@ const Geofence = () => {
   console.log("geofencePath", geofencePath);
   return (
     <>
-    <Layout />
-    <LoadScript
-      googleMapsApiKey={process.env.NEXT_PUBLIC_MAP_API_KEY as string}
-    >
-      <GoogleMap
-        zoom={10}
-        center={{ lat: 37.7749, lng: -122.4194 }}
-        mapContainerStyle={{ width: "100%", height: "100vh" }}
-        onClick={handleMapClick}
+      <Layout />
+      <LoadScript
+        googleMapsApiKey={process.env.NEXT_PUBLIC_MAP_API_KEY as string}
       >
-        {geofencePath.length > 2 && (
-          <Polygon
-            paths={geofencePath}
-            options={{
-              fillColor: "#FF0000",
-              fillOpacity: 0.35,
-              strokeColor: "#FF0000",
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-            }}
-          />
-        )}
-      </GoogleMap>
-    </LoadScript></>
+        <GoogleMap
+          zoom={10}
+          center={{ lat: 37.7749, lng: -122.4194 }}
+          mapContainerStyle={{ width: "100%", height: "100vh" }}
+          onClick={handleMapClick}
+        >
+          {geofencePath.length > 2 && (
+            <Polygon
+              paths={geofencePath}
+              options={{
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+              }}
+            />
+          )}
+        </GoogleMap>
+      </LoadScript>
+    </>
   );
 };
 
