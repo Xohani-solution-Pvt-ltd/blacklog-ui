@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Container, Nav, Navbar } from "react-bootstrap";
 import Image from "next/image";
 import logoImg from "../public/assets/img/logo_2.png";
@@ -41,7 +41,7 @@ export default function Header() {
         />
         <Navbar.Collapse id="responsive-navbar-nav" className="nav-collapse">
           <Nav className="mr-auto">
-            <Nav.Link href="/" className="text-white">
+            <Nav.Link href="/dashboard" className="text-white">
               Home
             </Nav.Link>
             <Nav.Link href="/mapview" className="text-white">
@@ -72,8 +72,8 @@ export default function Header() {
             </Nav.Link>
           </Nav>
 
-          <div className="btns-nav">
-            <Button className="display-4 me-3">
+          <div className="btns-nav ml-auto">
+            {/* <Button className="display-4 me-3">
               <Nav.Link href="/map" className="text-white">
                 View Map
               </Nav.Link>
@@ -81,6 +81,11 @@ export default function Header() {
             <Button className="display-4 me-3">
               <Nav.Link href="/signup" className="text-white">
                 Signup/Login
+              </Nav.Link>
+            </Button> */}
+            <Button className="ml-auto">
+              <Nav.Link href="/login" className="text-white">
+                Log Out
               </Nav.Link>
             </Button>
           </div>

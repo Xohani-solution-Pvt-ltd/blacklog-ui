@@ -5,78 +5,27 @@ import {
   Marker as MarkerF,
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
-import axios from "axios";
-import { Col } from "react-bootstrap";
-import { object } from "yup";
-import Tracklayout from "@/components/Tracklayout";
-
-
-const CarName = ({ car, onSelectCar}) => (
-  <li className="carItem" onClick={() => onSelectCar(car)}>
-    <p className="carItem">{car.vehicleNo}</p>
-  </li>
-);
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
-  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [FetchData, setFetchData] = useState<any>([]);
   const [latData, setLatData] = useState<number>(0);
   const [lngData, setLngData] = useState<number>(0);
   const [speedData, setSpeedData] = useState<any>([]);
   const [totalDistance, setTotalDistance] = useState<number>(0);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [vehicleList, setVehicleList] = useState<string[]>([]);
-  const [FetchData, setFetchData] = useState<any>([]);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [carNames, setCarNames] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-
-  function MarkerClickeds() {
+  function MarkerClicked() {
     setIsInfoWindowOpen(true);
   }
-
-  const handleVehicleChange = (event) => {
-    setVehicleNumber(event.target.value);
-  };
-
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
-  };
-
-  const handleCarSelection = (selectedCar) => {
-    setVehicleNumber(selectedCar.vehicleNo);
-    setSelectedVehicle(selectedCar);
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    axios
-      .get("http://localhost:8000/api/v1/fetchCar")
-      .then((response) => {
-        console.log("Fetched data:", response.data);
-        setCarNames(response.data.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error);
-        setLoading(false);
-        console.error("Error fetching car list:", error);
-      });
-  }, []);
-
   const containerStyle = {
     width: "100%",
     height: "90vh",
   };
-
   const onMapLoad = async (map: google.maps.Map) => {
     setGoogleMap(map);
-    setMapInitialized(false);
   };
 
   const options = useMemo<google.maps.MapOptions>(
@@ -92,76 +41,68 @@ export default function MyComponent() {
     []
   );
 
-
-  const setCenter = useMemo(
-    () => {
-      console.log("Selected Vehicle:", selectedVehicle);
-      const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
-      const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-      console.log("setCenter:", { lat, lng });
-      return { lat, lng };
-    },
-    [selectedVehicle]
+  const center = useMemo(
+    () => ({
+      lat: FetchData.length > 0 ? parseFloat(FetchData[0].latitude) : 0,
+      lng: FetchData.length > 0 ? parseFloat(FetchData[0].longitude) : 0,
+    }),
+    [FetchData]
   );
-  
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
     libraries: libraries as any,
   });
-
-  
+  console.log("API KEY: ", process.env.NEXT_PUBLIC_MAP_API_KEY);
   useEffect(() => {
     const fetchData = async () => {
-      if (vehicleNumber && selectedDate) {
-        const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNumber}&Date=${selectedDate}`;
+      const vehicleNo = "MP09QR9091";
+      const Date = "23/01/2024";
+      const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNo}&Date=${Date}`;
 
-        try {
-          const response = await fetch(apiUrl);
-          if (!response.ok) {
-            console.error(
-              `HTTP error! Status: ${response.status}, URL: ${response.url}`
-            );
-            return;
-          }
-          const data = await response.json();
-          console.log("mydata====", data);
-          const dataArray = [];
-          if (data?.data && Array.isArray(data.data)) {
-            data.data.forEach((object) => {
-
-              if (
-                object.Latitude !== undefined &&
-                object.Latitude !== 0 &&
-                object.Longitude !== undefined &&
-                object.Longitude !== 0 &&
-                object.Speed !== undefined
-              ) {
-                if (
-                  String(object.Latitude).length > 7 &&
-                  String(object.Longitude).length > 7
-                ) {
-                  const formattedData = {
-                    latitude: parseFloat(object.Latitude),
-                    longitude: parseFloat(object.Longitude),
-                    speed: object.Speed,
-                  };
-                  dataArray.push(formattedData);
-                }
-              }
-            });
-          }
-          setFetchData(dataArray);
-          // console.log("mydata=", FetchData)
-        } catch (error) {
-          console.log("Error:", error);
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          console.error(
+            `HTTP error! Status: ${response.status}, URL: ${response.url}`
+          );
+          return;
         }
+        const data = await response.json();
+        console.log("myssss", data.data);
+
+        const dataArray = [];
+
+        if (data?.data && Array.isArray(data.data)) {
+          data.data.forEach((object) => {
+            if (
+              object.Latitude !== undefined &&
+              object.Latitude !== 0 &&
+              object.Longitude !== undefined &&
+              object.Longitude !== 0 &&
+              object.Speed !== undefined
+            ) {
+              if (
+                String(object.Latitude).length > 7 &&
+                String(object.Longitude).length > 7
+              ) {
+                const formattedData = {
+                  latitude: parseFloat(object.Latitude),
+                  longitude: parseFloat(object.Longitude),
+                  speed: object.Speed,
+                };
+                dataArray.push(formattedData);
+              }
+            }
+          });
+        }
+        setFetchData(dataArray);
+      } catch (error) {
+        console.log("Error:", error.message);
       }
     };
-    if(vehicleNumber && selectedDate){
-      fetchData();
-    }
-  }, [vehicleNumber, selectedDate]);
-
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const initMap = async () => {
@@ -306,13 +247,16 @@ export default function MyComponent() {
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
+
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
+
       if (currentSpeed !== nextSpeed) {
         colors.push(color);
       } else {
         colors.push(color);
       }
     }
+
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
   };
@@ -321,99 +265,45 @@ export default function MyComponent() {
     return <p>Loading...</p>;
   }
 
-  return (
-
-    <>
-      <Tracklayout />
-      <div style={{ marginTop: "100px" }}>
-        <Col md={4}>
-          {loading && <p>Loading...</p>}
-          {error && <p>Error: {error.message}</p>}
-
-          {carNames.length > 0 ? (
-            <>
-              <ul>
-                {carNames.map((car) => (
-                  <CarName
-                    key={car.id}
-                    car={car}
-                    onSelectCar={(selectedCar) =>
-                      handleCarSelection(selectedCar)
-                    }
-                  />
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p>No cars available</p>
-          )}
-        </Col>
-        <div>
-          <label>Select Date: </label>
-          <input type="date" value={selectedDate} onChange={handleDateChange} />
-        </div>
-        {isLoaded && selectedVehicle && selectedDate ? (
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            options={options}
-            center={{ lat: 20.5937, lng: 78.9629 }}
-            onLoad={onMapLoad}
-            zoom={15}
-            onClick={() => setIsInfoWindowOpen(false)}
+  return isLoaded ? (
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      options={options}
+      center={center}
+      onLoad={onMapLoad}
+      zoom={10}
+      onClick={() => setIsInfoWindowOpen(false)}
+    >
+      <MarkerF position={center} cursor="pointer" onClick={MarkerClicked}>
+        {isInfoWindowOpen && (
+          <InfoWindowF
+            onCloseClick={() => setIsInfoWindowOpen(false)}
+            position={center}
           >
-            {selectedVehicle && (
-              <MarkerF
-                position={{
-                  lat: parseFloat(selectedVehicle.latitude),
-                  lng: parseFloat(selectedVehicle.longitude),
-                }}
-                cursor="pointer"
-                onClick={MarkerClicked}
-              >
-                {isInfoWindowOpen && (
-                  <InfoWindowF
-                    onCloseClick={() => setIsInfoWindowOpen(false)}
-                    position={center}
-                  >
-                    <div className="w-80 p-2">
-                      <div className="flex items-center mb-2 space-x-5">
-                        <img
-                          src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                          style={{
-                            width: "56px",
-                            height: "56px",
-                            borderRadius: "50%",
-                          }}
-                          alt=""
-                        />
-                        <div>
-                          <h3 className="text-xl-font-bold">some title</h3>
-                          <p>some subtitle</p>
-                        </div>
-                      </div>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Voluptate, dolor nisi accusantium quia tenetur
-                        voluptatum. Laudantium suscipit dolores, obcaecati
-                        placeat autem voluptas libero aspernatur maiores ex aut,
-                        dignissimos quia inventore.
-                      </p>
-                    </div>
-                  </InfoWindowF>
-                )}
-              </MarkerF>
-            )}
-            <></>
-          </GoogleMap>
-
-        ) : (
-          <p>Loading...</p>
+            <div className="w-80 p-2">
+              <div className="flex items-center mb-2 space-x-5">
+                <img
+                  src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  style={{ width: "56px", height: "56px", borderRadius: "50%" }}
+                />
+                <div>
+                  <h3 className="text-xl-font-bold">some title</h3>
+                  <p>some subtitle</p>
+                </div>
+              </div>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                Voluptate, dolor nisi accusantium quia tenetur voluptatum.
+                Laudantium suscipit dolores, obcaecati placeat autem voluptas
+                libero aspernatur maiores ex aut, dignissimos quia inventore.
+              </p>
+            </div>
+          </InfoWindowF>
         )}
-      </div>
-
-    </>
-
+      </MarkerF>
+      <></>
+    </GoogleMap>
+  ) : (
+    <></>
   );
- }
-
-
+}

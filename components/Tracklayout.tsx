@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import Header from "./Header";
+import TrackDevice from "./trackdevicelayout";
 import { LayoutProps } from "../interfaces/index";
 import { Container } from "react-bootstrap";
 
-const Layout = ({
+const Tracklayout = ({
   children,
   title = "This is the default title",
 }: LayoutProps) => {
@@ -14,7 +14,7 @@ const Layout = ({
   return (
     <>
       <Container>
-        <Header />
+        <TrackDevice />
         {children}
       </Container>
     </>
@@ -32,10 +32,10 @@ const StaticLayout = ({
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <Header />
+      <TrackDevice />
       {children}
     </>
   );
 };
 export { StaticLayout };
-export default Layout;
+export default Tracklayout;

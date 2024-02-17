@@ -194,10 +194,6 @@ const TrackDevice = () => {
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-        <div className="System">
-          <h2 className="text-center">Welcome to Vehicle Tracking System</h2>
-          <p className="text-center">(Please use the navigation tree)</p>
-        </div>
       </Container>
     </>
   );

@@ -6,6 +6,9 @@ import {
   InfoWindowF,
 } from "@react-google-maps/api";
 import Image from "next/image";
+import axios from "axios";
+import { Col, Form, FormControl } from "react-bootstrap";
+import Tracklayout from "@/components/Tracklayout";
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
@@ -17,6 +20,20 @@ export default function MyComponent() {
   const [totalDistance, setTotalDistance] = useState<number>(0);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
+  const [carNames, setCarNames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVehicleLocation, setSelectedVehicleLocation] = useState({
+    lat: 0,
+    lng: 0,
+  });
+
+  const CarName = ({ car }) => (
+    <li className="carItem">
+      <p onClick={() => onSelectCar(car)}>{car.vehicleNo}</p>
+    </li>
+  );
 
   function MarkerClicked() {
     setIsInfoWindowOpen(true);
@@ -56,49 +73,70 @@ export default function MyComponent() {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      const vehicleNo = "MP09QR9091";
-      try {
-        const response = await fetch(
-          `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
-        );
-
-        const data = await response.json();
-        console.log("dataaa", data.selectedVehicle);
-
-        const dataArray: { latitude: number; longitude: number; speed: any }[] =
-          [];
-
-        if (data && Array.isArray(data.selectedVehicle)) {
-          data.selectedVehicle.forEach((object: any) => {
-            if (
-              object.Latitude !== undefined &&
-              object.Latitude !== 0 &&
-              object.Longitude !== undefined &&
-              object.Longitude !== 0 &&
-              object.Speed !== undefined
-            ) {
-              if (
-                String(object.Latitude).length > 7 &&
-                String(object.Longitude).length > 7
-              ) {
-                const formattedData = {
-                  latitude: parseFloat(object.Latitude),
-                  longitude: parseFloat(object.Longitude),
-                  speed: object.Speed,
-                };
-                dataArray.push(formattedData);
-              }
-            }
-          });
-        }
-        setFetchData(dataArray);
-      } catch (error) {
-        console.error("Error Fetching Data", error);
-      }
-    };
-    fetchData();
+    setLoading(true);
+    axios
+      .get("http://localhost:8000/api/v1/fetchCar")
+      .then((response) => {
+        console.log("Fetched data:", response.data);
+        setCarNames(response.data.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+        console.error("Error fetching car list:", error);
+      });
   }, []);
+
+  const onSelectCar = async (selectedCar) => {
+    setSelectedVehicle(selectedCar);
+    const vehicleNo = selectedCar.vehicleNo;
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
+      );
+
+      const data = await response.json();
+      const dataArray: {
+        latitude: number;
+        longitude: any;
+      }[] = [];
+
+      if (data && Array.isArray(data.selectedVehicle)) {
+        data.selectedVehicle.forEach((object) => {
+          if (
+            object.Latitude !== undefined &&
+            object.Latitude !== 0 &&
+            object.Longitude !== undefined &&
+            object.Longitude !== 0 &&
+            object.Speed !== undefined
+          ) {
+            if (
+              String(object.Latitude).length > 7 &&
+              String(object.Longitude).length > 7
+            ) {
+              const formattedData = {
+                latitude: parseFloat(object.Latitude),
+                longitude: parseFloat(object.Longitude),
+                speed: object.Speed,
+              };
+              dataArray.push(formattedData);
+            }
+          }
+        });
+      }
+      setFetchData(dataArray);
+
+      if (dataArray.length > 0) {
+        setSelectedVehicleLocation({
+          lat: dataArray[0].latitude,
+          lng: dataArray[0].longitude,
+        });
+      }
+    } catch (error) {
+      console.error("Error Fetching Data", error);
+    }
+  };
 
   useEffect(() => {
     const initMap = async () => {
@@ -272,39 +310,83 @@ export default function MyComponent() {
   }
 
   return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      options={options}
-      center={center}
-      onLoad={onMapLoad}
-      zoom={10}
-      onClick={() => setIsInfoWindowOpen(false)}
-    >
-      <MarkerF position={center} cursor="pointer" onClick={MarkerClicked}>
-        {isInfoWindowOpen && (
-          <InfoWindowF
-            onCloseClick={() => setIsInfoWindowOpen(false)}
-            position={center}
+    <>
+      <Tracklayout />
+      <div
+        style={{
+          position: "relative",
+          height: "100vh",
+          width: "100%",
+          marginTop: "80px",
+        }}
+      >
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          options={options}
+          center={center}
+          onLoad={onMapLoad}
+          zoom={10}
+          onClick={() => setIsInfoWindowOpen(false)}
+        >
+          <MarkerF
+            position={{
+              lat: selectedVehicleLocation.lat,
+              lng: selectedVehicleLocation.lng,
+            }}
+            cursor="pointer"
+            onClick={MarkerClicked}
           >
-            <div className="w-80 p-2">
-              <div className="flex items-center mb-2 space-x-5">
-                <Image
-                  src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  style={{ width: "56px", height: "56px", borderRadius: "50%" }}
-                  alt=""
-                />
-                <div>
-                  <h3 className="text-xl-font-bold">Hyundai</h3>
-                  <p>Creta</p>
+            {isInfoWindowOpen && selectedVehicle && (
+              <InfoWindowF
+                onCloseClick={() => setIsInfoWindowOpen(false)}
+                position={{
+                  lat: parseFloat(selectedVehicle.latitude),
+                  lng: parseFloat(selectedVehicle.longitude),
+                }}
+              >
+                <div className="w-80 p-2">
+                  <div className="flex items-center mb-2 space-x-5">
+                    <h3 className="text-xl font-bold">
+                      {selectedVehicle.vehicleNo}
+                    </h3>
+                    <p>{selectedVehicle.model}</p>
+                  </div>
+
+                  <p>Speed: {selectedVehicle.speed}</p>
                 </div>
-              </div>
-              <p>MP09CZ1111</p>
-            </div>
-          </InfoWindowF>
-        )}
-      </MarkerF>
-      <></>
-    </GoogleMap>
+              </InfoWindowF>
+            )}
+          </MarkerF>
+          <></>
+          <div
+            style={{
+              position: "absolute",
+              top: 60,
+              left: 20,
+              zIndex: 1,
+              backgroundColor: "white",
+            }}
+          >
+            <Col md={4}>
+              {loading && <p>Loading...</p>}
+              {error && <p>Error: {error.message}</p>}
+
+              {carNames.length > 0 ? (
+                <>
+                  <ul>
+                    {carNames.map((car) => (
+                      <CarName key={car.id} car={car} onSelectCar={undefined} />
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p>No cars available</p>
+              )}
+            </Col>
+          </div>{" "}
+        </GoogleMap>
+      </div>
+    </>
   ) : (
     <></>
   );
