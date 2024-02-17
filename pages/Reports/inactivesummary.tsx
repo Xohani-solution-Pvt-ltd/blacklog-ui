@@ -1,3 +1,4 @@
+import Tracklayout from "@/components/Tracklayout";
 import { useState, useEffect } from "react";
 
 const InactiveSummary = () => {
@@ -18,16 +19,19 @@ const InactiveSummary = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Vehicle Inactive Summary</h1>
-      <ul>
-        {inactiveData.map((item) => (
-          <li key={item.vehicleId}>
-            Vehicle {item.vehicleId} was off {item.offCount} times.
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <Tracklayout />
+      <div style={{ marginTop: "80px" }}>
+        <h1>Vehicle Inactive Summary</h1>
+        <ul>
+          {inactiveData.map((item) => (
+            <li key={item.vehicleId}>
+              Vehicle {item.vehicleId} was off {item.offCount} times.
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   );
 };
 

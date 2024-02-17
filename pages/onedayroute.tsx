@@ -7,6 +7,7 @@ import {
 } from "@react-google-maps/api";
 import axios from "axios";
 import { Col } from "react-bootstrap";
+import Tracklayout from "@/components/Tracklayout";
 
 const CarName = ({ car, onSelectCar }) => (
   <li className="carItem" onClick={() => onSelectCar(car)}>
@@ -101,46 +102,48 @@ export default function MyComponent() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNumber}&Date=${selectedDate}`;
+      if (vehicleNumber && selectedDate) {
+        const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNumber}&Date=${selectedDate}`;
 
-      try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          console.error(
-            `HTTP error! Status: ${response.status}, URL: ${response.url}`
-          );
-          return;
-        }
-        const data = await response.json();
-        console.log("mydata====", data);
-        const dataArray = [];
-        if (data?.data && Array.isArray(data.data)) {
-          data.data.forEach((object) => {
-            if (
-              object.Latitude !== undefined &&
-              object.Latitude !== 0 &&
-              object.Longitude !== undefined &&
-              object.Longitude !== 0 &&
-              object.Speed !== undefined
-            ) {
+        try {
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            console.error(
+              `HTTP error! Status: ${response.status}, URL: ${response.url}`
+            );
+            return;
+          }
+          const data = await response.json();
+          console.log("mydata====", data);
+          const dataArray = [];
+          if (data?.data && Array.isArray(data.data)) {
+            data.data.forEach((object) => {
               if (
-                String(object.Latitude).length > 7 &&
-                String(object.Longitude).length > 7
+                object.Latitude !== undefined &&
+                object.Latitude !== 0 &&
+                object.Longitude !== undefined &&
+                object.Longitude !== 0 &&
+                object.Speed !== undefined
               ) {
-                const formattedData = {
-                  latitude: parseFloat(object.Latitude),
-                  longitude: parseFloat(object.Longitude),
-                  speed: object.Speed,
-                };
-                dataArray.push(formattedData);
+                if (
+                  String(object.Latitude).length > 7 &&
+                  String(object.Longitude).length > 7
+                ) {
+                  const formattedData = {
+                    latitude: parseFloat(object.Latitude),
+                    longitude: parseFloat(object.Longitude),
+                    speed: object.Speed,
+                  };
+                  dataArray.push(formattedData);
+                }
               }
-            }
-          });
+            });
+          }
+          setFetchData(dataArray);
+          // console.log("mydata=", FetchData)
+        } catch (error) {
+          console.log("Error:", error);
         }
-        setFetchData(dataArray);
-        // console.log("mydata=", FetchData)
-      } catch (error) {
-        console.log("Error:", error);
       }
     };
     fetchData();
@@ -308,87 +311,92 @@ export default function MyComponent() {
   }
 
   return (
-    <div>
-      <Col md={4}>
-        {loading && <p>Loading...</p>}
-        {error && <p>Error: {error.message}</p>}
+    <>
+      <Tracklayout />
+      <div style={{ marginTop: "100px" }}>
+        <Col md={4}>
+          {loading && <p>Loading...</p>}
+          {error && <p>Error: {error.message}</p>}
 
-        {carNames.length > 0 ? (
-          <>
-            <ul>
-              {carNames.map((car) => (
-                <CarName
-                  key={car.id}
-                  car={car}
-                  onSelectCar={(selectedCar) => handleCarSelection(selectedCar)}
-                />
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>No cars available</p>
-        )}
-      </Col>
-      <div>
-        <label>Select Date: </label>
-        <input type="date" value={selectedDate} onChange={handleDateChange} />
-      </div>
-      {isLoaded && selectedVehicle && selectedDate ? (
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          options={options}
-          center={{ lat: 20.5937, lng: 78.9629 }}
-          onLoad={onMapLoad}
-          zoom={15}
-          onClick={() => setIsInfoWindowOpen(false)}
-        >
-          {selectedVehicle && (
-            <MarkerF
-              position={{
-                lat: parseFloat(selectedVehicle.latitude),
-                lng: parseFloat(selectedVehicle.longitude),
-              }}
-              cursor="pointer"
-              onClick={MarkerClicked}
-            >
-              {isInfoWindowOpen && (
-                <InfoWindowF
-                  onCloseClick={() => setIsInfoWindowOpen(false)}
-                  position={center}
-                >
-                  <div className="w-80 p-2">
-                    <div className="flex items-center mb-2 space-x-5">
-                      <img
-                        src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        style={{
-                          width: "56px",
-                          height: "56px",
-                          borderRadius: "50%",
-                        }}
-                        alt=""
-                      />
-                      <div>
-                        <h3 className="text-xl-font-bold">some title</h3>
-                        <p>some subtitle</p>
-                      </div>
-                    </div>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                      Voluptate, dolor nisi accusantium quia tenetur voluptatum.
-                      Laudantium suscipit dolores, obcaecati placeat autem
-                      voluptas libero aspernatur maiores ex aut, dignissimos
-                      quia inventore.
-                    </p>
-                  </div>
-                </InfoWindowF>
-              )}
-            </MarkerF>
+          {carNames.length > 0 ? (
+            <>
+              <ul>
+                {carNames.map((car) => (
+                  <CarName
+                    key={car.id}
+                    car={car}
+                    onSelectCar={(selectedCar) =>
+                      handleCarSelection(selectedCar)
+                    }
+                  />
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>No cars available</p>
           )}
-          <></>
-        </GoogleMap>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
+        </Col>
+        <div>
+          <label>Select Date: </label>
+          <input type="date" value={selectedDate} onChange={handleDateChange} />
+        </div>
+        {isLoaded && selectedVehicle && selectedDate ? (
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            options={options}
+            center={{ lat: 20.5937, lng: 78.9629 }}
+            onLoad={onMapLoad}
+            zoom={15}
+            onClick={() => setIsInfoWindowOpen(false)}
+          >
+            {selectedVehicle && (
+              <MarkerF
+                position={{
+                  lat: parseFloat(selectedVehicle.latitude),
+                  lng: parseFloat(selectedVehicle.longitude),
+                }}
+                cursor="pointer"
+                onClick={MarkerClicked}
+              >
+                {isInfoWindowOpen && (
+                  <InfoWindowF
+                    onCloseClick={() => setIsInfoWindowOpen(false)}
+                    position={center}
+                  >
+                    <div className="w-80 p-2">
+                      <div className="flex items-center mb-2 space-x-5">
+                        <img
+                          src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                          style={{
+                            width: "56px",
+                            height: "56px",
+                            borderRadius: "50%",
+                          }}
+                          alt=""
+                        />
+                        <div>
+                          <h3 className="text-xl-font-bold">some title</h3>
+                          <p>some subtitle</p>
+                        </div>
+                      </div>
+                      <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Voluptate, dolor nisi accusantium quia tenetur
+                        voluptatum. Laudantium suscipit dolores, obcaecati
+                        placeat autem voluptas libero aspernatur maiores ex aut,
+                        dignissimos quia inventore.
+                      </p>
+                    </div>
+                  </InfoWindowF>
+                )}
+              </MarkerF>
+            )}
+            <></>
+          </GoogleMap>
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>
+    </>
   );
 }

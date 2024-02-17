@@ -5,6 +5,7 @@ import {
   Marker as MarkerF,
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
+import Tracklayout from "@/components/Tracklayout";
 
 export default function MyComponent() {
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
@@ -76,21 +77,26 @@ export default function MyComponent() {
   }
 
   return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      options={options}
-      center={
-        markers.length > 0
-          ? markers[0].position
-          : { lat: 21.717068, lng: 78.116068 }
-      }
-      onLoad={onMapLoad}
-      zoom={10}
-    >
-      {markers.map((marker, index) => (
-        <MarkerF key={index} position={marker.position} cursor="pointer" />
-      ))}
-    </GoogleMap>
+    <>
+      <Tracklayout />
+      <div style={{ marginTop: "80px" }}>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          options={options}
+          center={
+            markers.length > 0
+              ? markers[0].position
+              : { lat: 21.717068, lng: 78.116068 }
+          }
+          onLoad={onMapLoad}
+          zoom={10}
+        >
+          {markers.map((marker, index) => (
+            <MarkerF key={index} position={marker.position} cursor="pointer" />
+          ))}
+        </GoogleMap>
+      </div>
+    </>
   ) : (
     <></>
   );

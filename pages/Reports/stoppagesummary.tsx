@@ -1,3 +1,4 @@
+import Tracklayout from "@/components/Tracklayout";
 import { useState, useEffect } from "react";
 
 const VehicleStoppageSummary = () => {
@@ -21,21 +22,24 @@ const VehicleStoppageSummary = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Vehicle Stoppage Summary</h1>
-      {loading ? (
-        <p>Loading stoppage data...</p>
-      ) : (
-        <ul>
-          {stoppageData.map((stoppage, index) => (
-            <li key={index}>
-              <p>Start Time: {stoppage.startTime}</p>
-              <p>End Time: {stoppage.endTime}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <>
+      <Tracklayout />
+      <div style={{ marginTop: "80px" }}>
+        <h1>Vehicle Stoppage Summary</h1>
+        {loading ? (
+          <p>Loading stoppage data...</p>
+        ) : (
+          <ul>
+            {stoppageData.map((stoppage, index) => (
+              <li key={index}>
+                <p>Start Time: {stoppage.startTime}</p>
+                <p>End Time: {stoppage.endTime}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
   );
 };
 
