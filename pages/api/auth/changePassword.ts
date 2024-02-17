@@ -15,7 +15,7 @@ const changePasswordHandler = async (req: NextApiRequest, res: NextApiResponse) 
       return;
     }
   
-    connectMongo(); // Connect to your MongoDB
+    connectMongo(); 
   
     try {
       const { email, password, newPassword } = req.body;

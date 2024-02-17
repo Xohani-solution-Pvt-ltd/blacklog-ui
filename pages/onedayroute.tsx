@@ -7,8 +7,9 @@ import {
 } from "@react-google-maps/api";
 import axios from "axios";
 import { Col } from "react-bootstrap";
+import { object } from "yup";
 
-const CarName = ({ car, onSelectCar }) => (
+const CarName = ({ car, onSelectCar}) => (
   <li className="carItem" onClick={() => onSelectCar(car)}>
     <p className="carItem">{car.vehicleNo}</p>
   </li>
@@ -32,7 +33,8 @@ export default function MyComponent() {
   const [carNames, setCarNames] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  function MarkerClicked() {
+
+  function MarkerClickeds() {
     setIsInfoWindowOpen(true);
   }
 
@@ -43,12 +45,10 @@ export default function MyComponent() {
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
-  // const handleCarSelection = (selectedCar) => {
-  //   setVehicleNumber(selectedCar.vehicleNo);
-  // };
+
   const handleCarSelection = (selectedCar) => {
     setVehicleNumber(selectedCar.vehicleNo);
-    setSelectedVehicle(selectedCar); // Add this line to set the selected vehicle
+    setSelectedVehicle(selectedCar); 
   };
 
   useEffect(() => {
@@ -71,12 +71,10 @@ export default function MyComponent() {
     width: "100%",
     height: "90vh",
   };
-  // const onMapLoad = async (map: google.maps.Map) => {
-  //   setGoogleMap(map);
-  // };
+
   const onMapLoad = async (map: google.maps.Map) => {
     setGoogleMap(map);
-    setMapInitialized(false); // Reset map initialization
+    setMapInitialized(false); 
   };
 
   const options = useMemo<google.maps.MapOptions>(
@@ -92,39 +90,26 @@ export default function MyComponent() {
     []
   );
 
-  // const center = useMemo(
-  //   () => ({
-  //     lat: FetchData.length > 0 ? parseFloat(FetchData[0].latitude) : 0,
-  //     lng: FetchData.length > 0 ? parseFloat(FetchData[0].longitude) : 0,
-  //   }),
-  //   [FetchData]
-  // );
-  const center = useMemo(
+  const setCenter = useMemo(
     () => {
       console.log("Selected Vehicle:", selectedVehicle);
       const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
       const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-      console.log("Center:", { lat, lng });
+      console.log("setCenter:", { lat, lng });
       return { lat, lng };
     },
     [selectedVehicle]
   );
   
-
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
     libraries: libraries as any,
   });
 
+  
   useEffect(() => {
     const fetchData = async () => {
-      // const vehicleNo = "MP09QR9091";
-      // const Date = "23/01/2024";
-      // const apiUrl =
-      //   `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNo}&Date=${Date}`;
-
       const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNumber}&Date=${selectedDate}`;
-
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
@@ -137,7 +122,6 @@ export default function MyComponent() {
         console.log("mydata", data);
 
         const dataArray = [];
-
         if (data && Array.isArray(data.fetchdata)) {
           data.fetchdata.forEach((object) => {
             if (
@@ -166,8 +150,11 @@ export default function MyComponent() {
         console.log("Error:", error.message);
       }
     };
-    fetchData();
+    if(vehicleNumber && selectedDate){
+      fetchData();
+    }
   }, [vehicleNumber, selectedDate]);
+
 
   useEffect(() => {
     const initMap = async () => {
@@ -312,16 +299,13 @@ export default function MyComponent() {
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
-
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
-
       if (currentSpeed !== nextSpeed) {
         colors.push(color);
       } else {
         colors.push(color);
       }
     }
-
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
   };
@@ -335,13 +319,12 @@ export default function MyComponent() {
       <Col md={4}>
         {loading && <p>Loading...</p>}
         {error && <p>Error: {error.message}</p>}
-
         {carNames.length > 0 ? (
           <>
             <ul>
-              {carNames.map((car) => (
+              {carNames && Array.isArray(carNames)&& carNames.map((car) => (
                 <CarName
-                  key={car.id}
+                  key={car.vehicleNo}
                   car={car}
                   onSelectCar={(selectedCar) => handleCarSelection(selectedCar)}
                 />
@@ -360,7 +343,7 @@ export default function MyComponent() {
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}
-          center={center}
+          center={setCenter}
           onLoad={onMapLoad}
           zoom={10}
           onClick={() => setIsInfoWindowOpen(false)}
@@ -372,12 +355,12 @@ export default function MyComponent() {
                 lng: parseFloat(selectedVehicle.longitude),
               }}
               cursor="pointer"
-              onClick={MarkerClicked}
+              onClick={MarkerClickeds}
             >
               {isInfoWindowOpen && (
                 <InfoWindowF
                   onCloseClick={() => setIsInfoWindowOpen(false)}
-                  position={center}
+                  position={setCenter}
                 >
                   <div className="w-80 p-2">
                     <div className="flex items-center mb-2 space-x-5">
@@ -414,4 +397,6 @@ export default function MyComponent() {
       )}
     </div>
   );
-}
+ }
+
+
