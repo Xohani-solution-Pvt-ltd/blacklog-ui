@@ -1,3 +1,4 @@
+import Tracklayout from "@/components/Tracklayout";
 import { useState, useEffect } from "react";
 
 const IdleSummary = () => {
@@ -24,10 +25,13 @@ const IdleSummary = () => {
   };
 
   return (
-    <div>
-      <h1>Vehicle Idle Summary</h1>
-      <p>Total Idle Time: {calculateIdleTime()} minutes</p>
-    </div>
+    <>
+      <Tracklayout />
+      <div style={{ marginTop: "80px" }}>
+        <h1>Vehicle Idle Summary</h1>
+        <p>Total Idle Time: {calculateIdleTime()} minutes</p>
+      </div>
+    </>
   );
 };
 

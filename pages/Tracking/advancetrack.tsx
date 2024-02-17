@@ -8,6 +8,7 @@ import {
 import Image from "next/image";
 import axios from "axios";
 import { Col, Form, FormControl } from "react-bootstrap";
+import Tracklayout from "@/components/Tracklayout";
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
@@ -97,8 +98,9 @@ export default function MyComponent() {
 
       const data = await response.json();
       const dataArray: {
-        latitude: number; longitude: any; 
-}[] = [];
+        latitude: number;
+        longitude: any;
+      }[] = [];
 
       if (data && Array.isArray(data.selectedVehicle)) {
         data.selectedVehicle.forEach((object) => {
@@ -309,7 +311,15 @@ export default function MyComponent() {
 
   return isLoaded ? (
     <>
-      <div style={{ position: "relative", height: "100vh", width: "100%" }}>
+      <Tracklayout />
+      <div
+        style={{
+          position: "relative",
+          height: "100vh",
+          width: "100%",
+          marginTop: "80px",
+        }}
+      >
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}

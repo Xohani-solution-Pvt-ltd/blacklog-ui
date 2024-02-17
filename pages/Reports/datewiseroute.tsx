@@ -5,6 +5,7 @@ import {
   Marker as MarkerF,
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
+import Tracklayout from "@/components/Tracklayout";
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
@@ -266,43 +267,53 @@ export default function MyComponent() {
   }
 
   return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      options={options}
-      center={center}
-      onLoad={onMapLoad}
-      zoom={10}
-      onClick={() => setIsInfoWindowOpen(false)}
-    >
-      <MarkerF position={center} cursor="pointer" onClick={MarkerClicked}>
-        {isInfoWindowOpen && (
-          <InfoWindowF
-            onCloseClick={() => setIsInfoWindowOpen(false)}
-            position={center}
-          >
-            <div className="w-80 p-2">
-              <div className="flex items-center mb-2 space-x-5">
-                <img
-                  src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  style={{ width: "56px", height: "56px", borderRadius: "50%" }}
-                />
-                <div>
-                  <h3 className="text-xl-font-bold">some title</h3>
-                  <p>some subtitle</p>
+    <>
+      <Tracklayout />
+      <div style={{ marginTop: "80px" }}>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          options={options}
+          center={center}
+          onLoad={onMapLoad}
+          zoom={10}
+          onClick={() => setIsInfoWindowOpen(false)}
+        >
+          <MarkerF position={center} cursor="pointer" onClick={MarkerClicked}>
+            {isInfoWindowOpen && (
+              <InfoWindowF
+                onCloseClick={() => setIsInfoWindowOpen(false)}
+                position={center}
+              >
+                <div className="w-80 p-2">
+                  <div className="flex items-center mb-2 space-x-5">
+                    <img
+                      src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                      style={{
+                        width: "56px",
+                        height: "56px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                    <div>
+                      <h3 className="text-xl-font-bold">some title</h3>
+                      <p>some subtitle</p>
+                    </div>
+                  </div>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Voluptate, dolor nisi accusantium quia tenetur voluptatum.
+                    Laudantium suscipit dolores, obcaecati placeat autem
+                    voluptas libero aspernatur maiores ex aut, dignissimos quia
+                    inventore.
+                  </p>
                 </div>
-              </div>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Voluptate, dolor nisi accusantium quia tenetur voluptatum.
-                Laudantium suscipit dolores, obcaecati placeat autem voluptas
-                libero aspernatur maiores ex aut, dignissimos quia inventore.
-              </p>
-            </div>
-          </InfoWindowF>
-        )}
-      </MarkerF>
-      <></>
-    </GoogleMap>
+              </InfoWindowF>
+            )}
+          </MarkerF>
+          <></>
+        </GoogleMap>
+      </div>
+    </>
   ) : (
     <></>
   );
