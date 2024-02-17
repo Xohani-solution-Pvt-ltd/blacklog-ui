@@ -7,9 +7,11 @@ import {
 } from "@react-google-maps/api";
 import axios from "axios";
 import { Col } from "react-bootstrap";
+import { object } from "yup";
 import Tracklayout from "@/components/Tracklayout";
 
-const CarName = ({ car, onSelectCar }) => (
+
+const CarName = ({ car, onSelectCar}) => (
   <li className="carItem" onClick={() => onSelectCar(car)}>
     <p className="carItem">{car.vehicleNo}</p>
   </li>
@@ -33,7 +35,8 @@ export default function MyComponent() {
   const [carNames, setCarNames] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  function MarkerClicked() {
+
+  function MarkerClickeds() {
     setIsInfoWindowOpen(true);
   }
 
@@ -89,17 +92,24 @@ export default function MyComponent() {
     []
   );
 
-  const center = useMemo(() => {
-    const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
-    const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-    return { lat, lng };
-  }, [selectedVehicle]);
 
+  const setCenter = useMemo(
+    () => {
+      console.log("Selected Vehicle:", selectedVehicle);
+      const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
+      const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
+      console.log("setCenter:", { lat, lng });
+      return { lat, lng };
+    },
+    [selectedVehicle]
+  );
+  
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
     libraries: libraries as any,
   });
 
+  
   useEffect(() => {
     const fetchData = async () => {
       if (vehicleNumber && selectedDate) {
@@ -118,6 +128,7 @@ export default function MyComponent() {
           const dataArray = [];
           if (data?.data && Array.isArray(data.data)) {
             data.data.forEach((object) => {
+
               if (
                 object.Latitude !== undefined &&
                 object.Latitude !== 0 &&
@@ -146,8 +157,11 @@ export default function MyComponent() {
         }
       }
     };
-    fetchData();
+    if(vehicleNumber && selectedDate){
+      fetchData();
+    }
   }, [vehicleNumber, selectedDate]);
+
 
   useEffect(() => {
     const initMap = async () => {
@@ -292,16 +306,13 @@ export default function MyComponent() {
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
-
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
-
       if (currentSpeed !== nextSpeed) {
         colors.push(color);
       } else {
         colors.push(color);
       }
     }
-
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
   };
@@ -311,6 +322,7 @@ export default function MyComponent() {
   }
 
   return (
+
     <>
       <Tracklayout />
       <div style={{ marginTop: "100px" }}>
@@ -393,10 +405,15 @@ export default function MyComponent() {
             )}
             <></>
           </GoogleMap>
+
         ) : (
           <p>Loading...</p>
         )}
       </div>
+
     </>
+
   );
-}
+ }
+
+
