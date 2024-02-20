@@ -6,21 +6,60 @@ import {
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
 import Tracklayout from "@/components/Tracklayout";
+import axios from "axios";
+import { Col } from "react-bootstrap";
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [FetchData, setFetchData] = useState<any>([]);
-  const [latData, setLatData] = useState<number>(0);
-  const [lngData, setLngData] = useState<number>(0);
-  const [speedData, setSpeedData] = useState<any>([]);
-  const [totalDistance, setTotalDistance] = useState<number>(0);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [carNames, setCarNames] = useState([]);
+  const [selectedVehicle, setSelectedVehicle] = useState();
+  const [selectedStartDate, setSelectedStartDate] = useState<string>("");
+  const [selectedEndDate, setSelectedEndDate] = useState<string>("");
+  const [startDateInput, setStartDateInput] = useState<string>("");
+  const [endDateInput, setEndDateInput] = useState<string>("");
+
+  const handleStartDateChange = (e: any) => {
+    setStartDateInput(e.target.value);
+    setSelectedStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e: any) => {
+    setEndDateInput(e.target.value);
+    setSelectedEndDate(e.target.value);
+  };
+
+  const CarName = ({ car, onSelectCar }) => (
+    <li className="carItem" onClick={() => onSelectCar(car)}>
+      <p className="carItem">{car.vehicleNo}</p>
+    </li>
+  );
 
   function MarkerClicked() {
     setIsInfoWindowOpen(true);
   }
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get("http://localhost:8000/api/v1/fetchCar")
+      .then((response) => {
+        console.log("Fetched data:", response.data);
+        setCarNames(response.data.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+        console.error("Error fetching car list:", error);
+      });
+  }, []);
+
   const containerStyle = {
     width: "100%",
     height: "90vh",
@@ -56,11 +95,15 @@ export default function MyComponent() {
   });
 
   useEffect(() => {
+    console.log("Selected Start Date:", selectedStartDate);
+    console.log("Selected End Date:", selectedEndDate);
+
     const fetchData = async () => {
-      const vehicleNo = "MP09QR9091";
-      const startDate = "23/01/2024";
-      const endDate = "23/01/2024";
-      const apiUrl = `http://localhost:8000/api/v1/fetchvehicleGyroData?vehicleNo=${vehicleNo}&startDate=${startDate}&endDate=${endDate}`;
+      if (!selectedVehicle || !selectedStartDate || !selectedEndDate) {
+        return;
+      }
+
+      const apiUrl = `http://localhost:8000/api/v1/fetchvehicleGyroData?vehicleNo=${selectedVehicle.vehicleNo}&startDate=${selectedStartDate}&endDate=${selectedEndDate}`;
 
       try {
         const response = await fetch(apiUrl);
@@ -103,7 +146,7 @@ export default function MyComponent() {
       }
     };
     fetchData();
-  }, []);
+  }, [selectedVehicle, selectedStartDate, selectedEndDate]);
 
   useEffect(() => {
     const initMap = async () => {
@@ -266,16 +309,58 @@ export default function MyComponent() {
     return <p>Loading...</p>;
   }
 
+  function handleCarSelection(selectedCar: any) {
+    setSelectedVehicle(selectedCar);
+  }
+
   return isLoaded ? (
     <>
       <Tracklayout />
-      <div style={{ marginTop: "80px" }}>
+      <div style={{ marginTop: "100px" }}>
+        <Col md={4}>
+          <label>Start Date:</label>
+          <input
+            type="date"
+            value={startDateInput}
+            onChange={handleStartDateChange}
+          />
+          <br />
+          <label>End Date:</label>
+          <input
+            type="date"
+            value={endDateInput}
+            onChange={handleEndDateChange}
+          />
+          <br />
+          {loading && <p>Loading...</p>}
+          {error && <p>Error: {error.message}</p>}
+
+          {carNames.length > 0 ? (
+            <>
+              <ul>
+                {carNames.map((car) => (
+                  <CarName
+                    key={car.id}
+                    car={car}
+                    onSelectCar={(selectedCar) =>
+                      handleCarSelection(selectedCar)
+                    }
+                  />
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>No cars available</p>
+          )}
+        </Col>
+      </div>
+      <div>
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}
           center={center}
           onLoad={onMapLoad}
-          zoom={10}
+          zoom={15}
           onClick={() => setIsInfoWindowOpen(false)}
         >
           <MarkerF position={center} cursor="pointer" onClick={MarkerClicked}>

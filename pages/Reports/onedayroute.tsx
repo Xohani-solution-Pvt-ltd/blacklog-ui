@@ -7,11 +7,10 @@ import {
 } from "@react-google-maps/api";
 import axios from "axios";
 import { Col } from "react-bootstrap";
-import { object } from "yup";
 import Tracklayout from "@/components/Tracklayout";
+import Image from "next/image";
 
-
-const CarName = ({ car, onSelectCar}) => (
+const CarName = ({ car, onSelectCar }) => (
   <li className="carItem" onClick={() => onSelectCar(car)}>
     <p className="carItem">{car.vehicleNo}</p>
   </li>
@@ -19,7 +18,7 @@ const CarName = ({ car, onSelectCar}) => (
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
-  const [mapInitialized, setMapInitialized] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(true);
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [latData, setLatData] = useState<number>(0);
   const [lngData, setLngData] = useState<number>(0);
@@ -33,10 +32,9 @@ export default function MyComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [carNames, setCarNames] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState();
 
-
-  function MarkerClickeds() {
+  function MarkerClicked() {
     setIsInfoWindowOpen(true);
   }
 
@@ -92,24 +90,19 @@ export default function MyComponent() {
     []
   );
 
-
-  const setCenter = useMemo(
-    () => {
-      console.log("Selected Vehicle:", selectedVehicle);
-      const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
-      const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-      console.log("setCenter:", { lat, lng });
-      return { lat, lng };
-    },
-    [selectedVehicle]
+  const center = useMemo(
+    () => ({
+      lat: FetchData.length > 0 ? parseFloat(FetchData[0].latitude) : 0,
+      lng: FetchData.length > 0 ? parseFloat(FetchData[0].longitude) : 0,
+    }),
+    [FetchData]
   );
-  
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
     libraries: libraries as any,
   });
 
-  
   useEffect(() => {
     const fetchData = async () => {
       if (vehicleNumber && selectedDate) {
@@ -128,7 +121,6 @@ export default function MyComponent() {
           const dataArray = [];
           if (data?.data && Array.isArray(data.data)) {
             data.data.forEach((object) => {
-
               if (
                 object.Latitude !== undefined &&
                 object.Latitude !== 0 &&
@@ -157,11 +149,10 @@ export default function MyComponent() {
         }
       }
     };
-    if(vehicleNumber && selectedDate){
+    if (vehicleNumber && selectedDate) {
       fetchData();
     }
   }, [vehicleNumber, selectedDate]);
-
 
   useEffect(() => {
     const initMap = async () => {
@@ -322,7 +313,6 @@ export default function MyComponent() {
   }
 
   return (
-
     <>
       <Tracklayout />
       <div style={{ marginTop: "100px" }}>
@@ -356,7 +346,7 @@ export default function MyComponent() {
           <GoogleMap
             mapContainerStyle={containerStyle}
             options={options}
-            center={{ lat: 20.5937, lng: 78.9629 }}
+            center={center}
             onLoad={onMapLoad}
             zoom={15}
             onClick={() => setIsInfoWindowOpen(false)}
@@ -377,7 +367,7 @@ export default function MyComponent() {
                   >
                     <div className="w-80 p-2">
                       <div className="flex items-center mb-2 space-x-5">
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                           style={{
                             width: "56px",
@@ -405,15 +395,10 @@ export default function MyComponent() {
             )}
             <></>
           </GoogleMap>
-
         ) : (
           <p>Loading...</p>
         )}
       </div>
-
     </>
-
   );
- }
-
-
+}

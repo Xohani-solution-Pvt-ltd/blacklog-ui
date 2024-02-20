@@ -77,7 +77,7 @@ const TrackDevice = () => {
                   <NavDropdown.Item href="/Reports/datewiseroute">
                     Travel Summary
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/onedayroute">
+                  <NavDropdown.Item href="/Reports/onedayroute">
                     Trip Summary
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/Reports/stoppagesummary">
