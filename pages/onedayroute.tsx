@@ -8,6 +8,7 @@ import {
 import axios from "axios";
 import { Col } from "react-bootstrap";
 import Tracklayout from "@/components/Tracklayout";
+import Image from "next/image";
 
 const CarName = ({ car, onSelectCar }) => (
   <li className="carItem" onClick={() => onSelectCar(car)}>
@@ -17,7 +18,7 @@ const CarName = ({ car, onSelectCar }) => (
 
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
-  const [mapInitialized, setMapInitialized] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(true);
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [latData, setLatData] = useState<number>(0);
   const [lngData, setLngData] = useState<number>(0);
@@ -31,7 +32,7 @@ export default function MyComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [carNames, setCarNames] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState();
 
   function MarkerClicked() {
     setIsInfoWindowOpen(true);
@@ -89,11 +90,13 @@ export default function MyComponent() {
     []
   );
 
-  const center = useMemo(() => {
-    const lat = selectedVehicle ? parseFloat(selectedVehicle.latitude) : 0;
-    const lng = selectedVehicle ? parseFloat(selectedVehicle.longitude) : 0;
-    return { lat, lng };
-  }, [selectedVehicle]);
+  const center = useMemo(
+    () => ({
+      lat: FetchData.length > 0 ? parseFloat(FetchData[0].latitude) : 0,
+      lng: FetchData.length > 0 ? parseFloat(FetchData[0].longitude) : 0,
+    }),
+    [FetchData]
+  );
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
@@ -146,7 +149,9 @@ export default function MyComponent() {
         }
       }
     };
-    fetchData();
+    if (vehicleNumber && selectedDate) {
+      fetchData();
+    }
   }, [vehicleNumber, selectedDate]);
 
   useEffect(() => {
@@ -292,16 +297,13 @@ export default function MyComponent() {
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
-
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
-
       if (currentSpeed !== nextSpeed) {
         colors.push(color);
       } else {
         colors.push(color);
       }
     }
-
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
   };
@@ -344,7 +346,7 @@ export default function MyComponent() {
           <GoogleMap
             mapContainerStyle={containerStyle}
             options={options}
-            center={{ lat: 20.5937, lng: 78.9629 }}
+            center={center}
             onLoad={onMapLoad}
             zoom={15}
             onClick={() => setIsInfoWindowOpen(false)}
@@ -365,7 +367,7 @@ export default function MyComponent() {
                   >
                     <div className="w-80 p-2">
                       <div className="flex items-center mb-2 space-x-5">
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                           style={{
                             width: "56px",

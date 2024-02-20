@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectMongo } from "../../../utils/mongodb";
 import { env } from "../../../environments/index";
-import { config } from "../../../config/config";
 const nodemailer = require("nodemailer");
 
  const handler = async (
