@@ -14,10 +14,6 @@ export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [FetchData, setFetchData] = useState<any>([]);
-  const [latData, setLatData] = useState<number>(0);
-  const [lngData, setLngData] = useState<number>(0);
-  const [speedData, setSpeedData] = useState<any>([]);
-  const [totalDistance, setTotalDistance] = useState<number>(0);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
   const [carNames, setCarNames] = useState([]);
