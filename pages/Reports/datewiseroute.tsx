@@ -23,6 +23,8 @@ export default function MyComponent() {
   const [selectedEndDate, setSelectedEndDate] = useState<string>("");
   const [startDateInput, setStartDateInput] = useState<string>("");
   const [endDateInput, setEndDateInput] = useState<string>("");
+  const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
+  const [vehicleNumber, setVehicleNumber] = useState("");
 
   const handleStartDateChange = (e: any) => {
     setStartDateInput(e.target.value);
@@ -43,6 +45,21 @@ export default function MyComponent() {
   function MarkerClicked() {
     setIsInfoWindowOpen(true);
   }
+
+  const handleCarSelection = (selectedCar) => {
+    setVehicleNumber(selectedCar.vehicleNo);
+    setSelectedVehicle(selectedCar);
+
+    polylines.forEach((polyline) => {
+      polyline.setMap(null);
+    });
+
+    setPolylines([]);
+  };
+
+  useEffect(() => {
+    setIsInfoWindowOpen(false); // Close info window when the selected vehicle changes
+  }, [selectedVehicle]);
 
   useEffect(() => {
     setLoading(true);
@@ -94,12 +111,140 @@ export default function MyComponent() {
     libraries: libraries as any,
   });
 
+  const drawRouteOnMap = async (data) => {
+    try {
+      polylines.forEach((polyline) => {
+        polyline.setMap(null);
+      });
+      setPolylines([]);
+
+      if (data.length > 0) {
+        const snappedRoadPath = await Promise.all(
+          data.map(async (point) => ({
+            lat: parseFloat(point.latitude),
+            lng: parseFloat(point.longitude),
+            speed: point.speed,
+          }))
+        );
+
+        const speedData = snappedRoadPath.map((point) => point.speed);
+        const routeColor = await determineRouteColor(speedData);
+        let currentColor = routeColor[0];
+        let currentSegment = [snappedRoadPath[0]];
+
+        for (let i = 1; i < snappedRoadPath.length; i++) {
+          const color = routeColor[i];
+          if (color === currentColor) {
+            currentSegment.push(snappedRoadPath[i]);
+          } else {
+            if (i > 1 && routeColor[i - 1] !== color) {
+              const route = new google.maps.Polyline({
+                path: currentSegment,
+                geodesic: true,
+                strokeColor: currentColor,
+                strokeOpacity: 1.0,
+                strokeWeight: 2.5,
+                map: googleMap,
+              });
+
+              const infoWindow = new google.maps.InfoWindow();
+              google.maps.event.addListener(
+                route,
+                "mouseover",
+                async (event: any) => {
+                  const hoveredIndex = findHoveredIndex(
+                    event,
+                    route.getPath().getArray()
+                  );
+                  const hoveredPoint = FetchData[hoveredIndex];
+
+                  const content = `<div style="background-color: #004d4d ;padding:2px; ">
+                                  <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+                                  <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+                                  <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
+                                  <div style="color : #ffffff"> Distance :</div>
+                                 </div>
+                                    `;
+
+                  infoWindow.setContent(content);
+                  infoWindow.setPosition(event.latLng);
+                  infoWindow.open(googleMap);
+                }
+              );
+
+              google.maps.event.addListener(route, "mouseout", (event: any) => {
+                infoWindow.close();
+              });
+
+              setPolylines((prevPolylines) => [...prevPolylines, route]);
+
+              currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
+            } else {
+              currentSegment.push(snappedRoadPath[i]);
+            }
+            currentColor = color;
+          }
+        }
+
+        const route = new google.maps.Polyline({
+          path: currentSegment,
+          geodesic: true,
+          strokeColor: currentColor,
+          strokeOpacity: 1.0,
+          strokeWeight: 2.5,
+          map: googleMap,
+        });
+
+        const infoWindow = new google.maps.InfoWindow();
+        google.maps.event.addListener(
+          route,
+          "mouseover",
+          async (event: any) => {
+            const hoveredIndex = findHoveredIndex(
+              event,
+              route.getPath().getArray()
+            );
+            const hoveredPoint = FetchData[hoveredIndex];
+            const content = `<div style="background-color: #004d4d ;padding:2px; ">
+                              <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+                              <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+                              <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
+                              <div style="color : #ffffff"> Distance :</div>
+                             </div>
+                                `;
+            infoWindow.setContent(content);
+            infoWindow.setPosition(event.latLng);
+            infoWindow.open(googleMap);
+          }
+        );
+
+        google.maps.event.addListener(route, "mouseout", () => {
+          infoWindow.close();
+        });
+
+        setPolylines((prevPolylines) => [...prevPolylines, route]);
+
+        setMapInitialized(true);
+      } else {
+        setMapInitialized(true);
+      }
+    } catch (error) {
+      console.error("Error Initializing Map", error);
+    }
+  };
+
   useEffect(() => {
     console.log("Selected Start Date:", selectedStartDate);
     console.log("Selected End Date:", selectedEndDate);
 
     const fetchData = async () => {
-      if (!selectedVehicle || !selectedStartDate || !selectedEndDate) {
+      if (
+        !selectedVehicle ||
+        !selectedStartDate ||
+        !selectedEndDate ||
+        !isLoaded ||
+        !googleMap
+      ) {
         return;
       }
 
@@ -141,16 +286,29 @@ export default function MyComponent() {
           });
         }
         setFetchData(dataArray);
+        drawRouteOnMap(dataArray);
       } catch (error) {
         console.log("Error:", error.message);
       }
     };
     fetchData();
-  }, [selectedVehicle, selectedStartDate, selectedEndDate]);
+  }, [
+    selectedVehicle,
+    selectedStartDate,
+    selectedEndDate,
+    isLoaded,
+    googleMap,
+    vehicleNumber,
+  ]);
 
   useEffect(() => {
     const initMap = async () => {
       try {
+        polylines.forEach((polyline) => {
+          polyline.setMap(null);
+        });
+
+        setPolylines([]);
         if (FetchData.length > 0) {
           const snappedRoadPath = await Promise.all(
             FetchData.map(async (point) => ({
@@ -212,6 +370,7 @@ export default function MyComponent() {
                     infoWindow.close();
                   }
                 );
+                setPolylines((prevPolylines) => [...prevPolylines, route]);
 
                 currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
               } else {
@@ -256,8 +415,11 @@ export default function MyComponent() {
           google.maps.event.addListener(route, "mouseout", () => {
             infoWindow.close();
           });
+          setPolylines((prevPolylines) => [...prevPolylines, route]);
+          setMapInitialized(true);
+        } else {
+          setMapInitialized(true);
         }
-        setMapInitialized(true);
       } catch (error) {
         console.error("Error Initializing Map", error);
       }
@@ -309,9 +471,9 @@ export default function MyComponent() {
     return <p>Loading...</p>;
   }
 
-  function handleCarSelection(selectedCar: any) {
-    setSelectedVehicle(selectedCar);
-  }
+  // function handleCarSelection(selectedCar: any) {
+  //   setSelectedVehicle(selectedCar);
+  // }
 
   return isLoaded ? (
     <>
