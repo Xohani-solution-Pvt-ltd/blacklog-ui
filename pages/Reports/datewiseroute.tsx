@@ -58,7 +58,7 @@ export default function MyComponent() {
   };
 
   useEffect(() => {
-    setIsInfoWindowOpen(false); // Close info window when the selected vehicle changes
+    setIsInfoWindowOpen(false);
   }, [selectedVehicle]);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ export default function MyComponent() {
             );
             const hoveredPoint = FetchData[hoveredIndex];
             const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                              <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+                              <div style="color : #ffffff"> Speed:${hoveredPoint.speed}</div>
                               <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
                               <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
                               <div style="color : #ffffff"> Distance :</div>
@@ -470,10 +470,6 @@ export default function MyComponent() {
   if (!isLoaded) {
     return <p>Loading...</p>;
   }
-
-  // function handleCarSelection(selectedCar: any) {
-  //   setSelectedVehicle(selectedCar);
-  // }
 
   return isLoaded ? (
     <>
