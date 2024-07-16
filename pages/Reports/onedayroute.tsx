@@ -54,7 +54,7 @@ export default function MyComponent() {
   };
 
   useEffect(() => {
-    setIsInfoWindowOpen(false); // Close info window when the selected vehicle changes
+    setIsInfoWindowOpen(false);
   }, [selectedVehicle]);
 
   useEffect(() => {
