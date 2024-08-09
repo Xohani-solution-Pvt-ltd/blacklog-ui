@@ -2574,6 +2574,92 @@ h4.pro-content .title {
     }
   }
 
+  .dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .sidebar-container {
+    width: 20%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #f8f9fa;
+    z-index: 1000;
+  }
+
+  .dashboard-content {
+    margin-left: 20%;
+    padding: 20px;
+    flex-grow: 1;
+  }
+
+  .underlineStyle {
+    border-bottom: 1px solid #ddd;
+  }
+
+  .another-details {
+    margin-bottom: 20px;
+  }
+
+  .charts-container {
+    margin-top: 20px;
+  }
+
+  .map-container {
+    margin-top: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-container {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+
+    .dashboard-content {
+      margin-left: 0;
+    }
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    z-index: 1000;
+  }
+
+  .autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .autocomplete-item:hover {
+    background: #f0f0f0;
+  }
+
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .custom-image {
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
 
 
   /* edit-profile */
@@ -2604,8 +2690,8 @@ h4.pro-content .title {
 .carItem {
     cursor: pointer;
     color: blue;
-    /* display: flex; 
-    align-items: center; */
+    display: flex; 
+    align-items: center; 
   }
   
   .carItem:hover {

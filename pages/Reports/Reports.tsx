@@ -1,26 +1,28 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  Container,
+  Grid,
+  Typography,
+  Box,
+  Button,
+  TextField,
+  IconButton,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import Layout from "@/components/Layout";
+import Sidebar from "@/components/Sidebar";
+import {
   GoogleMap,
   useLoadScript,
   Marker as MarkerF,
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
 import axios from "axios";
-import { Col } from "react-bootstrap";
-import Tracklayout from "@/components/Tracklayout";
-import Image from "next/image";
 
-const CarName = ({ car, onSelectCar }) => (
-  <li className="carItem" onClick={() => onSelectCar(car)}>
-    <p className="carItem">{car.vehicleNo}</p>
-  </li>
-);
-
-export default function MyComponent() {
+export default function ReportContent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
-  const [mapInitialized, setMapInitialized] = useState(true);
-  const [vehicleNumber, setVehicleNumber] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [mapInitialized, setMapInitialized] = useState(false);
   const [FetchData, setFetchData] = useState<any>([]);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
@@ -28,19 +30,32 @@ export default function MyComponent() {
   const [error, setError] = useState(null);
   const [carNames, setCarNames] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState();
+  const [selectedStartDate, setSelectedStartDate] = useState<string>("");
+  const [selectedEndDate, setSelectedEndDate] = useState<string>("");
+  const [startDateInput, setStartDateInput] = useState<string>("");
+  const [endDateInput, setEndDateInput] = useState<string>("");
   const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
+  const [vehicleNumber, setVehicleNumber] = useState("");
+
+  const handleStartDateChange = (e: any) => {
+    setStartDateInput(e.target.value);
+    setSelectedStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e: any) => {
+    setEndDateInput(e.target.value);
+    setSelectedEndDate(e.target.value);
+  };
+
+  const CarName = ({ car, onSelectCar }) => (
+    <li className="carItem" onClick={() => onSelectCar(car)}>
+      <p className="carItem">{car.vehicleNo}</p>
+    </li>
+  );
 
   function MarkerClicked() {
     setIsInfoWindowOpen(true);
   }
-
-  const handleVehicleChange = (event) => {
-    setVehicleNumber(event.target.value);
-  };
-
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
-  };
 
   const handleCarSelection = (selectedCar) => {
     setVehicleNumber(selectedCar.vehicleNo);
@@ -77,10 +92,8 @@ export default function MyComponent() {
     width: "100%",
     height: "90vh",
   };
-
   const onMapLoad = async (map: google.maps.Map) => {
     setGoogleMap(map);
-    setMapInitialized(false);
   };
 
   const options = useMemo<google.maps.MapOptions>(
@@ -232,53 +245,72 @@ export default function MyComponent() {
   };
 
   useEffect(() => {
-    if (isLoaded && selectedVehicle && selectedDate && googleMap) {
-      const fetchData = async () => {
-        const apiUrl = `http://localhost:8000/api/v1/datevehicleData?vehicleNo=${vehicleNumber}&Date=${selectedDate}`;
+    console.log("Selected Start Date:", selectedStartDate);
+    console.log("Selected End Date:", selectedEndDate);
 
-        try {
-          const response = await fetch(apiUrl);
-          if (!response.ok) {
-            console.error(
-              `HTTP error! Status: ${response.status}, URL: ${response.url}`
-            );
-            return;
-          }
-          const data = await response.json();
-          console.log("mydata====", data);
-          const dataArray = [];
-          if (data?.data && Array.isArray(data.data)) {
-            data.data.forEach((object) => {
-              if (
-                object.Latitude !== undefined &&
-                object.Latitude !== 0 &&
-                object.Longitude !== undefined &&
-                object.Longitude !== 0 &&
-                object.Speed !== undefined
-              ) {
-                if (
-                  String(object.Latitude).length > 7 &&
-                  String(object.Longitude).length > 7
-                ) {
-                  const formattedData = {
-                    latitude: parseFloat(object.Latitude),
-                    longitude: parseFloat(object.Longitude),
-                    speed: object.Speed,
-                  };
-                  dataArray.push(formattedData);
-                }
-              }
-            });
-          }
-          setFetchData(dataArray);
-          drawRouteOnMap(dataArray);
-        } catch (error) {
-          console.log("Error:", error);
+    const fetchData = async () => {
+      if (
+        !selectedVehicle ||
+        !selectedStartDate ||
+        !selectedEndDate ||
+        !isLoaded ||
+        !googleMap
+      ) {
+        return;
+      }
+
+      const apiUrl = `http://localhost:8000/api/v1/fetchvehicleGyroData?vehicleNo=${selectedVehicle.vehicleNo}&startDate=${selectedStartDate}&endDate=${selectedEndDate}`;
+
+      try {
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          console.error(
+            `HTTP error! Status: ${response.status}, URL: ${response.url}`
+          );
+          return;
         }
-      };
-      fetchData();
-    }
-  }, [isLoaded, selectedVehicle, selectedDate, googleMap, vehicleNumber]);
+        const data = await response.json();
+        const dataArray = [];
+
+        if (data && Array.isArray(data.fetchdata)) {
+          data.fetchdata.forEach((object) => {
+            if (
+              object.Latitude !== undefined &&
+              object.Latitude !== 0 &&
+              object.Longitude !== undefined &&
+              object.Longitude !== 0 &&
+              object.Speed !== undefined
+            ) {
+              if (
+                String(object.Latitude).length > 7 &&
+                String(object.Longitude).length > 7
+              ) {
+                const formattedData = {
+                  latitude: parseFloat(object.Latitude),
+                  longitude: parseFloat(object.Longitude),
+                  speed: object.Speed,
+                };
+                dataArray.push(formattedData);
+              }
+            }
+          });
+        }
+        setFetchData(dataArray);
+        drawRouteOnMap(dataArray);
+      } catch (error) {
+        console.log("Error:", error.message);
+      }
+    };
+    fetchData();
+  }, [
+    selectedVehicle,
+    selectedStartDate,
+    selectedEndDate,
+    isLoaded,
+    googleMap,
+    vehicleNumber,
+  ]);
 
   useEffect(() => {
     const initMap = async () => {
@@ -288,7 +320,6 @@ export default function MyComponent() {
         });
 
         setPolylines([]);
-
         if (FetchData.length > 0) {
           const snappedRoadPath = await Promise.all(
             FetchData.map(async (point) => ({
@@ -329,13 +360,13 @@ export default function MyComponent() {
                     );
                     const hoveredPoint = FetchData[hoveredIndex];
 
-                    const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                                <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
-                                <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                                <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                                <div style="color : #ffffff"> Distance :</div>
-                               </div>
-                                  `;
+                    const content = `<div style="background-color: #004d4d ;padding:2px;">
+                                    <div style="color : #ffffff">Speed :${hoveredPoint.speed}</div>
+                                    <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+                                    <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
+                                    <div style="color : #ffffff"> Distance :</div>
+                                   </div>
+                                      `;
 
                     infoWindow.setContent(content);
                     infoWindow.setPosition(event.latLng);
@@ -350,7 +381,6 @@ export default function MyComponent() {
                     infoWindow.close();
                   }
                 );
-
                 setPolylines((prevPolylines) => [...prevPolylines, route]);
 
                 currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
@@ -360,7 +390,6 @@ export default function MyComponent() {
               currentColor = color;
             }
           }
-
           const route = new google.maps.Polyline({
             path: currentSegment,
             geodesic: true,
@@ -371,6 +400,7 @@ export default function MyComponent() {
           });
 
           const infoWindow = new google.maps.InfoWindow();
+
           google.maps.event.addListener(
             route,
             "mouseover",
@@ -381,7 +411,7 @@ export default function MyComponent() {
               );
               const hoveredPoint = FetchData[hoveredIndex];
               const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                            <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
+                            <div style="color : #ffffff">Speed :${hoveredPoint.speed}</div>
                             <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
                             <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
                             <div style="color : #ffffff"> Distance :</div>
@@ -396,9 +426,7 @@ export default function MyComponent() {
           google.maps.event.addListener(route, "mouseout", () => {
             infoWindow.close();
           });
-
           setPolylines((prevPolylines) => [...prevPolylines, route]);
-
           setMapInitialized(true);
         } else {
           setMapInitialized(true);
@@ -407,9 +435,9 @@ export default function MyComponent() {
         console.error("Error Initializing Map", error);
       }
     };
-
     if (FetchData.length > 0 && !mapInitialized && googleMap) {
       initMap();
+      setMapInitialized(true);
     }
   }, [FetchData, googleMap, mapInitialized]);
 
@@ -436,13 +464,16 @@ export default function MyComponent() {
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
+
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
+
       if (currentSpeed !== nextSpeed) {
         colors.push(color);
       } else {
         colors.push(color);
       }
     }
+
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
   };
@@ -450,52 +481,138 @@ export default function MyComponent() {
   if (!isLoaded) {
     return <p>Loading...</p>;
   }
-
   return (
-    <>
-      <Tracklayout />
-      <div style={{ marginTop: "100px" }}>
-        <Col md={4}>
-          {loading && <p>Loading...</p>}
-          {error && <p>Error: {error.message}</p>}
-
-          {carNames.length > 0 ? (
-            <>
-              <ul>
-                {carNames.map((car) => (
-                  <CarName
-                    key={car.id}
-                    car={car}
-                    onSelectCar={(selectedCar) =>
-                      handleCarSelection(selectedCar)
-                    }
-                  />
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p>No cars available</p>
-          )}
-        </Col>
-        <div>
-          <label>Select Date: </label>
-          <input type="date" value={selectedDate} onChange={handleDateChange} />
-        </div>
-        {isLoaded && selectedVehicle && selectedDate ? (
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            options={options}
-            center={center}
-            onLoad={onMapLoad}
-            zoom={15}
-            onClick={() => setIsInfoWindowOpen(false)}
-          >
-            {selectedVehicle && (
-              <MarkerF
-                position={{
-                  lat: parseFloat(selectedVehicle.latitude),
-                  lng: parseFloat(selectedVehicle.longitude),
+    <div className="dashboard-layout">
+      <Layout />
+      <div className="sidebar-container">
+        <Sidebar />
+      </div>
+      <div className="dashboard-content" style={{ marginTop: "50px" }}>
+        <Container>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={4}>
+              <TextField
+                variant="outlined"
+                placeholder="Type Model or Vehicle ID"
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <IconButton>
+                      <SearchIcon />
+                    </IconButton>
+                  ),
                 }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <TextField
+                variant="outlined"
+                placeholder="Start Date"
+                type="date"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                value={startDateInput}
+                onChange={handleStartDateChange}
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <IconButton>{/* <CalendarTodayIcon /> */}</IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <TextField
+                variant="outlined"
+                placeholder="End Date"
+                type="date"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                value={endDateInput}
+                onChange={handleEndDateChange}
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <IconButton>{/* <CalendarTodayIcon /> */}</IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={2} container justifyContent="flex-end">
+              <Button variant="contained" color="primary">
+                Search
+              </Button>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2} mt={2}>
+            {carNames.map((car) => (
+              <Grid item xs={12} key={car.id}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  padding={2}
+                  borderRadius={1}
+                  border="1px solid #e0e0e0"
+                  bgcolor="#fff"
+                >
+                  <Box display="flex" alignItems="center">
+                    <Typography variant="body1">
+                      <strong>Jone Doe</strong>
+                      <br />
+                      {/* <ul>
+                        {carNames.map((car) => (
+                          <CarName
+                            key={car.id}
+                            car={car}
+                            onSelectCar={(selectedCar) =>
+                              handleCarSelection(selectedCar)
+                            }
+                          />
+                        ))}
+                      </ul> */}
+                      <CarName car={car} onSelectCar={handleCarSelection} />
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    // style={{ flex: 1, marginLeft: 16 }}
+                    sx={{ justifyContent: "center" }}
+                  >
+                    Click Vehicle Number to see details
+                  </Typography>
+                  <Box display="flex" alignItems="center">
+                    <Typography
+                      variant="body2"
+                      style={{ color: "green", marginRight: 16 }}
+                    >
+                      Vehicle status - Running
+                    </Typography>
+                    <Button variant="outlined" color="primary">
+                      Edit
+                    </Button>
+                  </Box>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+          <div>
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              options={options}
+              center={center}
+              onLoad={onMapLoad}
+              zoom={15}
+              onClick={() => setIsInfoWindowOpen(false)}
+            >
+              <MarkerF
+                position={center}
                 cursor="pointer"
                 onClick={MarkerClicked}
               >
@@ -506,14 +623,13 @@ export default function MyComponent() {
                   >
                     <div className="w-80 p-2">
                       <div className="flex items-center mb-2 space-x-5">
-                        <Image
+                        <img
                           src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                           style={{
                             width: "56px",
                             height: "56px",
                             borderRadius: "50%",
                           }}
-                          alt=""
                         />
                         <div>
                           <h3 className="text-xl-font-bold">some title</h3>
@@ -531,13 +647,11 @@ export default function MyComponent() {
                   </InfoWindowF>
                 )}
               </MarkerF>
-            )}
-            <></>
-          </GoogleMap>
-        ) : (
-          <p>Loading...</p>
-        )}
+              <></>
+            </GoogleMap>
+          </div>
+        </Container>
       </div>
-    </>
+    </div>
   );
 }

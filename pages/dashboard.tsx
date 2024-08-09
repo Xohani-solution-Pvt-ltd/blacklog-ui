@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import Layout from "@/components/Layout";
+import Sidebar from "@/components/Sidebar";
 import { Button, Col, Row, Container } from "react-bootstrap";
 import { useRouter } from "next/router";
-import ProgressBar from "react-bootstrap/ProgressBar";
-import { BsGearFill } from "react-icons/bs";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -232,7 +230,7 @@ const Dashboard = () => {
         const response = await fetch("http://localhost:8000/api/v1/fetchCar");
         const data = await response.json();
         const dataArray = [];
-        // console.log('d====', data);
+
         if (data && Array.isArray(data.data)) {
           data.data.forEach((object: any) => {
             const formattedData = {
@@ -319,57 +317,73 @@ const Dashboard = () => {
 
   return (
     <>
-      <Layout />
-      <div className="underlineStyle">
-        <Row className="dashboard-style" style={{ marginTop: "70px" }}>
-          <Col sm={6} xs={12}>
-            <h4 className="pt-4">Dashboard</h4>
-          </Col>
-          {/* <Col sm={6} xs={12}></Col> */}
-        </Row>
-      </div>
-      <div className="another-deatils underlineStyle">
-        <Row>
-          <Col sm={6} xs={12}>
+      <div className="dashboard-layout">
+        <Layout />
+        <div className="sidebar-container">
+          <Sidebar />
+        </div>
+        <div className="dashboard-content">
+          <div className="underlineStyle">
+            <Row className="dashboard-style" style={{ marginTop: "70px" }}>
+              <Col sm={6} xs={12}>
+                <h4>Dashboard</h4>
+              </Col>
+              <Col sm={6} xs={12}>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <input
+                    type="text"
+                    value={vehicleId}
+                    onChange={(e) => setVehicleId(e.target.value)}
+                    placeholder="Type model or Vehicle ID"
+                    // style={{ marginTop: "10px" }}
+                  />
+                  <button onClick={handleSearch} style={{ marginLeft: "20px" }}>
+                    Search
+                  </button>
+                  {vehicleData && (
+                    <div>
+                      <p>Vehicle ID: {vehicleData.vid}</p>
+                      <p>Status: {vehicleData.status}</p>
+                      <p>Location: {vehicleData.location}</p>
+                    </div>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          </div>
+          <div
+            className="another-deatils underlineStyle"
+            style={{ marginTop: "10px" }}
+          >
             <Row>
-              <Col sm={6} xs={12}>
-                <h6
-                  className="pt-2"
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  Fleet Performance
-                </h6>
-              </Col>
-              <Col sm={6} xs={12}>
-                <h6
-                  className="pt-2"
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  Vehicle and Fuel Usage
-                </h6>
-              </Col>
-              <div
-                className="row"
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginTop: "60px",
-                }}
-              >
-                <div
-                  className="col-md-6"
-                  style={{ display: "flex", justifyContent: "center" }}
-                >
-                  <div>
+              <Row>
+                <Col sm={6} xs={12} md={6}>
+                  <div className="pt-2">
+                    <Button className="me-3 text-black border-0 btn-hover">
+                      Daily
+                    </Button>
+                    <Button className="me-3 text-black border-0 btn-hover">
+                      Weekly
+                    </Button>
+                    <Button className="me-3 text-black border-0 btn-hover">
+                      Monthly
+                    </Button>
+                    <h6 className="float-end mbl-heading">
+                      Usage in Total Work Hour
+                    </h6>
+                  </div>
+                  <Line options={options} data={data} />
+                </Col>
+                <Col sm={6} xs={12} md={3}>
+                  <div
+                    className="pt-2"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <h6>Fleet Performance</h6>
                     <div className="progress blue">
                       <span className="progress-left">
                         <span
@@ -385,168 +399,125 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <div className="progress yellow">
-                      <span className="progress-left">
-                        <span
-                          className="progress-bar"
-                          style={{ width: `${progressData.value2}%` }}
-                        ></span>
-                      </span>
-                      <span className="progress-right">
-                        <span className="progress-bar"></span>
-                      </span>
-                      <div className="progress-value">
-                        {progressData.value2}%
+                </Col>
+                <Col sm={6} xs={12} md={3}>
+                  <div
+                    className="pt-2"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <h6>Vehicle and Fuel Usage</h6>
+                    <div>
+                      <div className="progress yellow">
+                        <span className="progress-left">
+                          <span
+                            className="progress-bar"
+                            style={{ width: `${progressData.value2}%` }}
+                          ></span>
+                        </span>
+                        <span className="progress-right">
+                          <span className="progress-bar"></span>
+                        </span>
+                        <div className="progress-value">
+                          {progressData.value2}%
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </Col>
+              </Row>
             </Row>
-          </Col>
-          <Col sm={6} xs={12}>
-            <div className="pt-2">
-              <Button className="me-3 text-black border-0 btn-hover">
-                Daily
-              </Button>
-              <Button className="me-3 text-black border-0 btn-hover">
-                Weekly
-              </Button>
-              <Button className="me-3 text-black border-0 btn-hover">
-                Monthly
-              </Button>
-              <h6 className="float-end mbl-heading">
-                Usage in Total Work Hour
-              </h6>
-            </div>
-            <Line options={options} data={data} />
-          </Col>
-        </Row>
-      </div>
-      <div className="divided-by-map">
-        <Row>
-          <Col className="pt-2" sm={6}>
-            <h6>MAP</h6>
-            <div style={{ height: "50vh", padding: "5" }}>
-              {/* <APIProvider apiKey={mapApiKey}>
-                <Map
-                  zoom={5}
-                  zoomControl={true}
-                  center={{ lat: 20.5937, lng: 78.9629 }}
-                  gestureHandling={"greedy"}
-                ></Map>
-              </APIProvider> */}
-
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                options={options}
-                center={
-                  markers.length > 0 ? markers[0].position : { lat: 0, lng: 0 }
-                }
-                onLoad={onMapLoad}
-                zoom={10}
-                onClick={() => setSelectedMarker(null)}
-              >
-                {markers.map((marker) => (
-                  <MarkerF
-                    key={marker.vehicleNo}
-                    position={marker.position}
-                    cursor="pointer"
-                    onClick={() => handleMarkerClick(marker)}
+          </div>
+          <div className="divided-by-map" style={{ marginTop: "10px" }}>
+            <Row>
+              <Col className="pt-2" sm={6} md={12}>
+                <h6>MAP</h6>
+                <div style={{ height: "50vh", padding: "5" }}>
+                  <GoogleMap
+                    mapContainerStyle={containerStyle}
+                    options={options}
+                    center={
+                      markers.length > 0
+                        ? markers[0].position
+                        : { lat: 0, lng: 0 }
+                    }
+                    onLoad={onMapLoad}
+                    zoom={10}
+                    onClick={() => setSelectedMarker(null)}
                   >
-                    {selectedMarker &&
-                      selectedMarker.details.vehicleNo === marker.vehicleNo && (
-                        <InfoWindowF
-                          onCloseClick={() => setSelectedMarker(null)}
-                          position={marker.position}
-                        >
-                          <div className="w-80 p-2">
-                            <div className="flex items-center mb-2 space-x-5">
-                              <Image
-                                src={selectedMarker.details.imageUrl}
-                                style={{
-                                  width: "56px",
-                                  height: "56px",
-                                  borderRadius: "50%",
-                                }}
-                                alt=""
-                                width={56}
-                                height={56}
-                              />
-                              <div>
-                                <h4 className="text-xl-font-bold">
-                                  vehicleNo : {selectedMarker.details.vehicleNo}
-                                </h4>
-                                <h4 className="text-xl-font-bold">
-                                  {" "}
-                                  Model : {selectedMarker.details.model}
-                                </h4>
-                                <h4 className="text-xl-font-bold">
-                                  {" "}
-                                  year : {selectedMarker.details.year}
-                                </h4>
+                    {markers.map((marker) => (
+                      <MarkerF
+                        key={marker.vehicleNo}
+                        position={marker.position}
+                        cursor="pointer"
+                        onClick={() => handleMarkerClick(marker)}
+                      >
+                        {selectedMarker &&
+                          selectedMarker.details.vehicleNo ===
+                            marker.vehicleNo && (
+                            <InfoWindowF
+                              onCloseClick={() => setSelectedMarker(null)}
+                              position={marker.position}
+                            >
+                              <div className="w-80 p-2">
+                                <div className="flex items-center mb-2 space-x-5">
+                                  <Image
+                                    src={selectedMarker.details.imageUrl}
+                                    style={{
+                                      width: "56px",
+                                      height: "56px",
+                                      borderRadius: "50%",
+                                    }}
+                                    alt=""
+                                    width={56}
+                                    height={56}
+                                  />
+                                  <div>
+                                    <h4 className="text-xl-font-bold">
+                                      vehicleNo :{" "}
+                                      {selectedMarker.details.vehicleNo}
+                                    </h4>
+                                    <h4 className="text-xl-font-bold">
+                                      {" "}
+                                      Model : {selectedMarker.details.model}
+                                    </h4>
+                                    <h4 className="text-xl-font-bold">
+                                      {" "}
+                                      year : {selectedMarker.details.year}
+                                    </h4>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            {/* <p>
-                              Lorem ipsum dolor sit amet, consectetur
-                              adipisicing elit. Voluptate, dolor nisi
-                              accusantium quia tenetur voluptatum. Laudantium
-                              suscipit dolores, obcaecati placeat autem voluptas
-                              libero aspernatur maiores ex aut, dignissimos quia
-                              inventore.
-                            </p> */}
-                          </div>
-                        </InfoWindowF>
-                      )}
-                  </MarkerF>
-                ))}
-              </GoogleMap>
-            </div>
-          </Col>
-          <Col sm={6} xs={12}>
-            <div className="d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center">
-                <BsGearFill />
-                <span className="mx-2">VEHICLES</span>
-              </div>
-              <BsGearFill />
-            </div>
-            <div>
-              <input
-                type="text"
-                value={vehicleId}
-                onChange={(e) => setVehicleId(e.target.value)}
-                placeholder="Type model or Vehicle ID"
-                style={{ marginTop: "10px" }}
-              />
-              <button onClick={handleSearch} style={{ marginLeft: "20px" }}>
-                Search
-              </button>
-              {vehicleData && (
-                <div>
-                  <p>Vehicle ID: {vehicleData.vid}</p>
-                  <p>Status: {vehicleData.status}</p>
-                  <p>Location: {vehicleData.location}</p>
+                            </InfoWindowF>
+                          )}
+                      </MarkerF>
+                    ))}
+                  </GoogleMap>
                 </div>
-              )}
-            </div>
-          </Col>
-        </Row>
-      </div>
-      <div className="bottom-0 end-0 p-3">
-        <Button
-          href="/addvehicle"
-          className="me-3 text-black border-0 btn-hover"
-        >
-          Add Vehicle
-        </Button>
-        <Button
-          href="/adddriver"
-          className="me-3 text-black border-0 btn-hover"
-        >
-          Add Driver
-        </Button>
+              </Col>
+            </Row>
+          </div>
+          <div
+            className="bottom-0 end-0 p-3"
+            style={{ justifyContent: "flex-end", display: "flex" }}
+          >
+            <Button
+              href="/addvehicle"
+              className="me-3 text-black border-0 btn-hover"
+            >
+              Add Vehicle
+            </Button>
+            <Button
+              href="/adddriver"
+              className="me-3 text-black border-0 btn-hover"
+            >
+              Add Driver
+            </Button>
+          </div>
+        </div>
       </div>
     </>
   );

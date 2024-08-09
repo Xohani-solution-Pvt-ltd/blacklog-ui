@@ -159,7 +159,7 @@ export default function MyComponent() {
                   const hoveredPoint = FetchData[hoveredIndex];
 
                   const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                                  <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+                                  <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
                                   <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
                                   <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
                                   <div style="color : #ffffff"> Distance :</div>
@@ -206,7 +206,7 @@ export default function MyComponent() {
             );
             const hoveredPoint = FetchData[hoveredIndex];
             const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                              <div style="color : #ffffff"> Speed:${hoveredPoint.speed}</div>
+                              <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
                               <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
                               <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
                               <div style="color : #ffffff"> Distance :</div>
@@ -349,8 +349,8 @@ export default function MyComponent() {
                     );
                     const hoveredPoint = FetchData[hoveredIndex];
 
-                    const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                                    <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+                    const content = `<div style="background-color: #004d4d ;padding:2px;">
+                                    <div style="color : #ffffff">Speed :${hoveredPoint.speed}</div>
                                     <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
                                     <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
                                     <div style="color : #ffffff"> Distance :</div>
@@ -400,7 +400,7 @@ export default function MyComponent() {
               );
               const hoveredPoint = FetchData[hoveredIndex];
               const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                            <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+                            <div style="color : #ffffff">Speed :${hoveredPoint.speed}</div>
                             <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
                             <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
                             <div style="color : #ffffff"> Distance :</div>
