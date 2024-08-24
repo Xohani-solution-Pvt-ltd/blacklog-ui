@@ -7,9 +7,13 @@ import {
   Button,
   TextField,
   IconButton,
+  TableRow,
+  TableCell,
+  Table,
+  TableBody,
+  TableHead,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import Layout from "@/components/Layout";
 import Sidebar from "@/components/Sidebar";
 import {
@@ -19,6 +23,7 @@ import {
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
 import axios from "axios";
+import Image from "next/image";
 
 export default function ReportContent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
@@ -36,6 +41,7 @@ export default function ReportContent() {
   const [endDateInput, setEndDateInput] = useState<string>("");
   const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
   const [vehicleNumber, setVehicleNumber] = useState("");
+  const [visibleMap, setVisibleMap] = useState<string | null>(null);
 
   const handleStartDateChange = (e: any) => {
     setStartDateInput(e.target.value);
@@ -58,14 +64,19 @@ export default function ReportContent() {
   }
 
   const handleCarSelection = (selectedCar) => {
-    setVehicleNumber(selectedCar.vehicleNo);
-    setSelectedVehicle(selectedCar);
+    if (visibleMap === selectedCar.vehicleNo) {
+      setVisibleMap(null);
+    } else {
+      setVisibleMap(selectedCar.vehicleNo);
+      setVehicleNumber(selectedCar.vehicleNo);
+      setSelectedVehicle(selectedCar);
 
-    polylines.forEach((polyline) => {
-      polyline.setMap(null);
-    });
+      polylines.forEach((polyline) => {
+        polyline.setMap(null);
+      });
 
-    setPolylines([]);
+      setPolylines([]);
+    }
   };
 
   useEffect(() => {
@@ -90,7 +101,7 @@ export default function ReportContent() {
 
   const containerStyle = {
     width: "100%",
-    height: "90vh",
+    height: "60vh",
   };
   const onMapLoad = async (map: google.maps.Map) => {
     setGoogleMap(map);
@@ -478,6 +489,31 @@ export default function ReportContent() {
     return colors;
   };
 
+  const SummaryTable = ({ data }) => (
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Vehicle No</TableCell>
+          <TableCell>Start Date</TableCell>
+          <TableCell>End Date</TableCell>
+          <TableCell>Start Time</TableCell>
+          <TableCell>End Time</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {data.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell>{item.vehicleNo}</TableCell>
+            <TableCell>{item.startDateInput}</TableCell>
+            <TableCell>{item.endDateInput}</TableCell>
+            <TableCell>{item.startTime}</TableCell>
+            <TableCell>{item.endTime}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+
   if (!isLoaded) {
     return <p>Loading...</p>;
   }
@@ -517,9 +553,7 @@ export default function ReportContent() {
                 onChange={handleStartDateChange}
                 fullWidth
                 InputProps={{
-                  endAdornment: (
-                    <IconButton>{/* <CalendarTodayIcon /> */}</IconButton>
-                  ),
+                  endAdornment: <IconButton></IconButton>,
                 }}
               />
             </Grid>
@@ -536,9 +570,7 @@ export default function ReportContent() {
                 onChange={handleEndDateChange}
                 fullWidth
                 InputProps={{
-                  endAdornment: (
-                    <IconButton>{/* <CalendarTodayIcon /> */}</IconButton>
-                  ),
+                  endAdornment: <IconButton></IconButton>,
                 }}
               />
             </Grid>
@@ -561,95 +593,141 @@ export default function ReportContent() {
                   borderRadius={1}
                   border="1px solid #e0e0e0"
                   bgcolor="#fff"
+                  flexDirection="column"
                 >
-                  <Box display="flex" alignItems="center">
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    width="100%"
+                  >
                     <Typography variant="body1">
                       <strong>Jone Doe</strong>
                       <br />
-                      {/* <ul>
-                        {carNames.map((car) => (
-                          <CarName
-                            key={car.id}
-                            car={car}
-                            onSelectCar={(selectedCar) =>
-                              handleCarSelection(selectedCar)
-                            }
-                          />
-                        ))}
-                      </ul> */}
+
                       <CarName car={car} onSelectCar={handleCarSelection} />
                     </Typography>
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    // style={{ flex: 1, marginLeft: 16 }}
-                    sx={{ justifyContent: "center" }}
-                  >
-                    Click Vehicle Number to see details
-                  </Typography>
-                  <Box display="flex" alignItems="center">
                     <Typography
                       variant="body2"
-                      style={{ color: "green", marginRight: 16 }}
+                      sx={{ justifyContent: "center" }}
                     >
-                      Vehicle status - Running
+                      Click Vehicle Number to see details
                     </Typography>
-                    <Button variant="outlined" color="primary">
-                      Edit
-                    </Button>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        variant="body2"
+                        style={{ color: "green", marginRight: 16 }}
+                      >
+                        Vehicle status - Running
+                      </Typography>
+                      <Button variant="outlined" color="primary">
+                        Edit
+                      </Button>
+                    </Box>
                   </Box>
+
+                  {visibleMap === car.vehicleNo && (
+                    <Box sx={{ width: "100%", display: "flex" }}>
+                      <Box width="50%" mt={2}>
+                        <GoogleMap
+                          mapContainerStyle={containerStyle}
+                          options={options}
+                          center={center}
+                          onLoad={onMapLoad}
+                          zoom={15}
+                          onClick={() => setIsInfoWindowOpen(false)}
+                        >
+                          <MarkerF
+                            position={center}
+                            cursor="pointer"
+                            onClick={MarkerClicked}
+                          >
+                            {isInfoWindowOpen && (
+                              <InfoWindowF
+                                onCloseClick={() => setIsInfoWindowOpen(false)}
+                                position={center}
+                              >
+                                <div className="w-80 p-2">
+                                  <div className="flex items-center mb-2 space-x-5">
+                                    <Image
+                                      src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                      style={{
+                                        width: "56px",
+                                        height: "56px",
+                                        borderRadius: "50%",
+                                      }}
+                                      alt=""
+                                    />
+                                    <div>
+                                      <h3 className="text-xl font-bold">
+                                        some title
+                                      </h3>
+                                      <p>some subtitle</p>
+                                    </div>
+                                  </div>
+                                  <p>
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipisicing elit. Voluptate, dolor nisi
+                                    accusantium quia tenetur voluptatum.
+                                  </p>
+                                </div>
+                              </InfoWindowF>
+                            )}
+                          </MarkerF>
+                          <></>
+                        </GoogleMap>
+                        <Button
+                          onClick={() => setVisibleMap(null)}
+                          style={{ marginTop: "10px" }}
+                        >
+                          Close Map
+                        </Button>
+                      </Box>
+
+                      {/* Summary Table */}
+                      <Box width="50%" pl={2}>
+                        {/* <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Device ID</TableCell>
+                              <TableCell>Start Date</TableCell>
+                              <TableCell>End Date</TableCell>
+                              <TableCell>Start Time</TableCell>
+                              <TableCell>End Time</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {Array.isArray(data) && data.length > 0 ? (
+                              data.map((row) => (
+                                <TableRow key={row.id}>
+                                  <TableCell>{row.deviceId}</TableCell>
+                                  <TableCell>{row.startDate}</TableCell>
+                                  <TableCell>{row.endDate}</TableCell>
+                                  <TableCell>{row.startTime}</TableCell>
+                                  <TableCell>{row.endTime}</TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell colSpan={8}>
+                                  No data available
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table> */}
+                        <Grid item xs={12}>
+                          {FetchData && FetchData.length > 0 && (
+                            <SummaryTable data={FetchData} />
+                          )}
+                        </Grid>
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
               </Grid>
             ))}
           </Grid>
-          <div>
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              options={options}
-              center={center}
-              onLoad={onMapLoad}
-              zoom={15}
-              onClick={() => setIsInfoWindowOpen(false)}
-            >
-              <MarkerF
-                position={center}
-                cursor="pointer"
-                onClick={MarkerClicked}
-              >
-                {isInfoWindowOpen && (
-                  <InfoWindowF
-                    onCloseClick={() => setIsInfoWindowOpen(false)}
-                    position={center}
-                  >
-                    <div className="w-80 p-2">
-                      <div className="flex items-center mb-2 space-x-5">
-                        <img
-                          src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                          style={{
-                            width: "56px",
-                            height: "56px",
-                            borderRadius: "50%",
-                          }}
-                        />
-                        <div>
-                          <h3 className="text-xl-font-bold">some title</h3>
-                          <p>some subtitle</p>
-                        </div>
-                      </div>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Voluptate, dolor nisi accusantium quia tenetur
-                        voluptatum. Laudantium suscipit dolores, obcaecati
-                        placeat autem voluptas libero aspernatur maiores ex aut,
-                        dignissimos quia inventore.
-                      </p>
-                    </div>
-                  </InfoWindowF>
-                )}
-              </MarkerF>
-              <></>
-            </GoogleMap>
-          </div>
         </Container>
       </div>
     </div>

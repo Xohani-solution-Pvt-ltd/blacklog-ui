@@ -1,25 +1,3 @@
-// import React from "react";
-// import { Nav } from "react-bootstrap";
-
-// const Sidebar = () => {
-//   return (
-//     <div className="sidebar" style={{ marginTop: "100px", width: "20%" }}>
-//       <Nav defaultActiveKey="/" className="flex-column">
-//         <Nav.Link href="/dashboard">Home</Nav.Link>
-//         <Nav.Link href="/mapview">Map</Nav.Link>
-//         <Nav.Link href="/vehicles">Vehicles</Nav.Link>
-//         <Nav.Link href="/editprofile">Edit Profile</Nav.Link>
-//         <Nav.Link href="/carlist">Vehicle List</Nav.Link>
-//         <Nav.Link href="/vehicledetails">Vehicle Details</Nav.Link>
-//         <Nav.Link href="/trackdevice">Track Device</Nav.Link>
-//         <Nav.Link href="/rtd">RTD</Nav.Link>
-//       </Nav>
-//     </div>
-//   );
-// };
-
-// export default Sidebar;
-
 import React from "react";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
@@ -99,7 +77,7 @@ export default function DashboardSidebar() {
           >
             <Link
               className={classes}
-              href="/trackdevice"
+              href="/Tracking/TrackDevice"
               style={{
                 display: "flex",
                 alignItems: "center",
