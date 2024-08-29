@@ -329,19 +329,18 @@ const Dashboard = () => {
                 <h4>Dashboard</h4>
               </Col>
               <Col sm={6} xs={12}>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <div className="search-container">
                   <input
                     type="text"
                     value={vehicleId}
                     onChange={(e) => setVehicleId(e.target.value)}
                     placeholder="Type model or Vehicle ID"
-                    // style={{ marginTop: "10px" }}
                   />
-                  <button onClick={handleSearch} style={{ marginLeft: "20px" }}>
+                  <button onClick={handleSearch} className="search-button">
                     Search
                   </button>
                   {vehicleData && (
-                    <div>
+                    <div className="vehicle-data">
                       <p>Vehicle ID: {vehicleData.vid}</p>
                       <p>Status: {vehicleData.status}</p>
                       <p>Location: {vehicleData.location}</p>
@@ -352,90 +351,68 @@ const Dashboard = () => {
             </Row>
           </div>
           <div
-            className="another-deatils underlineStyle"
+            className="another-details underlineStyle"
             style={{ marginTop: "10px" }}
           >
             <Row>
-              <Row>
-                <Col sm={6} xs={12} md={6}>
-                  <div className="pt-2">
-                    <Button className="me-3 text-black border-0 btn-hover">
-                      Daily
-                    </Button>
-                    <Button className="me-3 text-black border-0 btn-hover">
-                      Weekly
-                    </Button>
-                    <Button className="me-3 text-black border-0 btn-hover">
-                      Monthly
-                    </Button>
-                    <h6 className="float-end mbl-heading">
-                      Usage in Total Work Hour
-                    </h6>
+              <Col sm={12} md={6}>
+                <div className="pt-2">
+                  <Button className="me-3 text-black border-0 btn-hover">
+                    Daily
+                  </Button>
+                  <Button className="me-3 text-black border-0 btn-hover">
+                    Weekly
+                  </Button>
+                  <Button className="me-3 text-black border-0 btn-hover">
+                    Monthly
+                  </Button>
+                  <h6 className="float-end mbl-heading">
+                    Usage in Total Work Hour
+                  </h6>
+                </div>
+                <Line options={options} data={data} />
+              </Col>
+              <Col sm={6} xs={12} md={3}>
+                <div className="pt-2 progress-container">
+                  <h6>Fleet Performance</h6>
+                  <div className="progress blue">
+                    <span className="progress-left">
+                      <span
+                        className="progress-bar"
+                        style={{ width: `${progressData.value1}%` }}
+                      ></span>
+                    </span>
+                    <span className="progress-right">
+                      <span className="progress-bar"></span>
+                    </span>
+                    <div className="progress-value">{progressData.value1}%</div>
                   </div>
-                  <Line options={options} data={data} />
-                </Col>
-                <Col sm={6} xs={12} md={3}>
-                  <div
-                    className="pt-2"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <h6>Fleet Performance</h6>
-                    <div className="progress blue">
-                      <span className="progress-left">
-                        <span
-                          className="progress-bar"
-                          style={{ width: `${progressData.value1}%` }}
-                        ></span>
-                      </span>
-                      <span className="progress-right">
-                        <span className="progress-bar"></span>
-                      </span>
-                      <div className="progress-value">
-                        {progressData.value1}%
-                      </div>
-                    </div>
+                </div>
+              </Col>
+              <Col sm={6} xs={12} md={3}>
+                <div className="pt-2 progress-container">
+                  <h6>Vehicle and Fuel Usage</h6>
+                  <div className="progress yellow">
+                    <span className="progress-left">
+                      <span
+                        className="progress-bar"
+                        style={{ width: `${progressData.value2}%` }}
+                      ></span>
+                    </span>
+                    <span className="progress-right">
+                      <span className="progress-bar"></span>
+                    </span>
+                    <div className="progress-value">{progressData.value2}%</div>
                   </div>
-                </Col>
-                <Col sm={6} xs={12} md={3}>
-                  <div
-                    className="pt-2"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <h6>Vehicle and Fuel Usage</h6>
-                    <div>
-                      <div className="progress yellow">
-                        <span className="progress-left">
-                          <span
-                            className="progress-bar"
-                            style={{ width: `${progressData.value2}%` }}
-                          ></span>
-                        </span>
-                        <span className="progress-right">
-                          <span className="progress-bar"></span>
-                        </span>
-                        <div className="progress-value">
-                          {progressData.value2}%
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
+                </div>
+              </Col>
             </Row>
           </div>
-          <div className="divided-by-map" style={{ marginTop: "10px" }}>
+          <div className="divided-by-map">
             <Row>
-              <Col className="pt-2" sm={6} md={12}>
+              <Col sm={12}>
                 <h6>MAP</h6>
-                <div style={{ height: "50vh", padding: "5" }}>
+                <div className="map-container">
                   <GoogleMap
                     mapContainerStyle={containerStyle}
                     options={options}
@@ -500,10 +477,7 @@ const Dashboard = () => {
               </Col>
             </Row>
           </div>
-          <div
-            className="bottom-0 end-0 p-3"
-            style={{ justifyContent: "flex-end", display: "flex" }}
-          >
+          <div className="bottom-controls">
             <Button
               href="/addvehicle"
               className="me-3 text-black border-0 btn-hover"

@@ -3,7 +3,6 @@ import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import ListItemContent from "@mui/joy/ListItemContent";
-import { Person } from "@mui/icons-material";
 import { Box } from "@mui/joy";
 import Link from "next/link";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -14,7 +13,7 @@ import DeviceThermostatIcon from "@mui/icons-material/DeviceThermostat";
 import SpatialTrackingIcon from "@mui/icons-material/SpatialTracking";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-export default function DashboardSidebar() {
+export default function DashboardSidebar({ isOpen }) {
   const classes =
     "MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-1xphdof-JoyListItemButton-root";
 
@@ -26,6 +25,21 @@ export default function DashboardSidebar() {
           "--List-gap": "15px",
           marginTop: "60px",
           backgroundColor: "#DAD8C9",
+          position: "fixed",
+          top: 0,
+          left: {
+            xs: isOpen ? 0 : "-250px",
+            sm: isOpen ? 0 : "-250px",
+            md: 0,
+          },
+          height: "100vh",
+          width: {
+            xs: "200px",
+            sm: "250px",
+            md: "260px",
+          },
+          transition: "left 0.3s ease",
+          zIndex: 1000,
         }}
       >
         <List
