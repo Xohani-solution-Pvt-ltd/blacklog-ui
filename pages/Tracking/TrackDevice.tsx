@@ -5,7 +5,6 @@ import {
   CardContent,
   Typography,
   Grid,
-  LinearProgress,
   TextField,
   InputAdornment,
   IconButton,
@@ -20,7 +19,6 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import {
   GoogleMap,
   useJsApiLoader,
-  Marker,
   MarkerF,
   InfoWindowF,
 } from "@react-google-maps/api";
@@ -374,8 +372,16 @@ const TrackDevice = () => {
           <Typography variant="h6" gutterBottom>
             Track Device
           </Typography>
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Box sx={{ width: "70%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: { xs: "column", md: "row" },
+            }}
+          >
+            <Box
+              sx={{ width: { xs: "100%", md: "70%" }, mb: { xs: 2, md: 0 } }}
+            >
               <Typography variant="h6">Map Overview</Typography>
               <GoogleMap
                 zoom={10}
@@ -416,12 +422,12 @@ const TrackDevice = () => {
                 </MarkerF>
               </GoogleMap>
             </Box>
-            <Box sx={{ width: "25%" }}>
-              <Typography variant="h6">Drivers</Typography>
+            <Box sx={{ width: { xs: "100%", md: "25%" } }}>
+              <Typography variant="h6">All Vehicles</Typography>
               <TextField
                 variant="outlined"
-                placeholder="Search Drivers"
-                fullWidth
+                sx={{ mt: { xs: 2, sm: 0 }, width: { xs: "100%", sm: "auto" } }}
+                placeholder="Type Model or vehicle ID"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -432,42 +438,45 @@ const TrackDevice = () => {
                   ),
                 }}
               />
-              <List>
-                {drivers.map((driver, index) => (
-                  <ListItem key={index} sx={{ mb: 1 }}>
-                    <ListItemAvatar>
-                      <Avatar src={driver.avatar} />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={driver.name}
-                      secondary={driver.carNo}
-                    />
-                    <IconButton edge="end" aria-label="chat">
-                      <WhatsAppIcon />
-                    </IconButton>
-                  </ListItem>
-                ))}
-              </List>
+              <Grid container spacing={2} sx={{ mt: 2 }}>
+                {loading && <p>Loading...</p>}
+                {error && <p>Error: {error.message}</p>}
+
+                {carNames.length > 0 ? (
+                  <>
+                    <ul
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        justifyContent: "space-around",
+                      }}
+                    >
+                      {carNames.map((car) => (
+                        <CarName
+                          key={car.id}
+                          car={car}
+                          onSelectCar={undefined}
+                        />
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>No cars available</p>
+                )}
+              </Grid>
             </Box>
           </Box>
           <div
             className="another-deatils underlineStyle"
             style={{ marginTop: "10px" }}
           ></div>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              mt: "10px",
-            }}
-          >
-            <Typography variant="h6" gutterBottom marginTop={"10px"}>
-              All Vehicles
-            </Typography>
+          <Box sx={{ width: { xs: "100%", md: "50%" } }}>
+            <Typography variant="h6">Drivers</Typography>
             <TextField
               variant="outlined"
-              placeholder="Type Model or vehicle ID"
+              placeholder="Search Drivers"
+              fullWidth
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -478,35 +487,23 @@ const TrackDevice = () => {
                 ),
               }}
             />
+            <List>
+              {drivers.map((driver, index) => (
+                <ListItem key={index} sx={{ mb: 1 }}>
+                  <ListItemAvatar>
+                    <Avatar src={driver.avatar} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={driver.name}
+                    secondary={driver.carNo}
+                  />
+                  <IconButton edge="end" aria-label="chat">
+                    <WhatsAppIcon />
+                  </IconButton>
+                </ListItem>
+              ))}
+            </List>
           </Box>
-          <Grid container spacing={2} sx={{ mt: 3 }}>
-            {/* {carNames.map((car, index) => ( */}
-            {/* <Grid item xs={12} sm={4} key={index}> */}
-            {/* <CarName car={car.vehicleNo} /> */}
-            {/* <Grid item xs={12} sm={4}> */}
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error.message}</p>}
-
-            {carNames.length > 0 ? (
-              <>
-                <ul
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  {carNames.map((car) => (
-                    <CarName key={car.id} car={car} onSelectCar={undefined} />
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p>No cars available</p>
-            )}
-          </Grid>
-          {/* </Grid> */}
         </Box>
       </div>
     </div>
