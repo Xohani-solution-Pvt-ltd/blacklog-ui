@@ -297,7 +297,7 @@ const Dashboard = () => {
       const selectedVehicle = data.vehicleData[data.vehicleData.length - 1];
       setSelectedMarker({
         details: {
-          imageUrl: selectedVehicle.image,
+          // imageUrl: selectedVehicle.image,
           model: selectedVehicle.model,
           year: selectedVehicle.year,
           vehicleNo: selectedVehicle.vehicleNo,
@@ -320,7 +320,7 @@ const Dashboard = () => {
       <div className="dashboard-layout">
         <Layout />
         <div className="sidebar-container">
-          <Sidebar />
+          <Sidebar isOpen={undefined} />
         </div>
         <div className="dashboard-content">
           <div className="underlineStyle">
@@ -441,7 +441,7 @@ const Dashboard = () => {
                             >
                               <div className="w-80 p-2">
                                 <div className="flex items-center mb-2 space-x-5">
-                                  <Image
+                                  {/* <Image
                                     src={selectedMarker.details.imageUrl}
                                     style={{
                                       width: "56px",
@@ -451,7 +451,7 @@ const Dashboard = () => {
                                     alt=""
                                     width={56}
                                     height={56}
-                                  />
+                                  /> */} 
                                   <div>
                                     <h4 className="text-xl-font-bold">
                                       vehicleNo :{" "}

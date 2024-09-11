@@ -523,7 +523,7 @@ export default function ReportContent() {
       <div className="sidebar-container">
         <Sidebar />
       </div>
-      <div className="dashboard-content" style={{ marginTop: "50px" }}>
+      <div className="dashboard-content" style={{ marginTop: "65px" }}>
         <Container>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={4}>
@@ -593,13 +593,14 @@ export default function ReportContent() {
                   borderRadius={1}
                   border="1px solid #e0e0e0"
                   bgcolor="#fff"
-                  flexDirection="column"
+                  flexDirection={{ xs: "column", md: "column" }}
                 >
                   <Box
                     display="flex"
                     alignItems="center"
                     justifyContent="space-between"
                     width="100%"
+                    flexDirection={{ xs: "column", md: "row" }}
                   >
                     <Typography variant="body1">
                       <strong>Jone Doe</strong>
@@ -627,8 +628,14 @@ export default function ReportContent() {
                   </Box>
 
                   {visibleMap === car.vehicleNo && (
-                    <Box sx={{ width: "100%", display: "flex" }}>
-                      <Box width="50%" mt={2}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: { xs: "column", md: "row" },
+                      }}
+                    >
+                      <Box width={{ xs: "100%", md: "50%" }} mt={2}>
                         <GoogleMap
                           mapContainerStyle={containerStyle}
                           options={options}
@@ -685,7 +692,10 @@ export default function ReportContent() {
                       </Box>
 
                       {/* Summary Table */}
-                      <Box width="50%" pl={2}>
+                      <Box
+                        width={{ xs: "100%", md: "50%" }}
+                        pl={{ xs: 0, md: 2 }}
+                      >
                         {/* <Table>
                           <TableHead>
                             <TableRow>

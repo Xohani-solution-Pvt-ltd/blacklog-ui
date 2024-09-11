@@ -207,7 +207,7 @@ export default function DashboardSidebar({ isOpen }) {
           >
             <Link
               className={classes}
-              href="/profile"
+              href="/Alerts/Alerts"
               style={{
                 display: "flex",
                 alignItems: "center",
