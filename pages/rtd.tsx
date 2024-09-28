@@ -6,7 +6,7 @@ export default function Rtd() {
   const [fetchdata, setFetchData] = useState([]);
 
   useEffect(() => {
-    fetch("http://65.0.85.221/api/v1/fetchGyro")
+    fetch("http://13.232.113.131/api/v1/fetchGyro")
       .then((response) => response.json())
       .then((data) => setFetchData(data.data))
       .catch((error) => console.error("Error fetching data:", error));

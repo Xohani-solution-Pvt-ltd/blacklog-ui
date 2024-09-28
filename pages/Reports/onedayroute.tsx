@@ -7,7 +7,6 @@ import {
 } from "@react-google-maps/api";
 import axios from "axios";
 import { Col } from "react-bootstrap";
-import Tracklayout from "@/components/Tracklayout";
 import Image from "next/image";
 
 const CarName = ({ car, onSelectCar }) => (
@@ -453,7 +452,6 @@ export default function MyComponent() {
 
   return (
     <>
-      <Tracklayout />
       <div style={{ marginTop: "100px" }}>
         <Col md={4}>
           {loading && <p>Loading...</p>}

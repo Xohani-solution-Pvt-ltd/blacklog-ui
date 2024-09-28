@@ -5,7 +5,6 @@ import {
   Marker as MarkerF,
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
-import Tracklayout from "@/components/Tracklayout";
 import axios from "axios";
 import { Col } from "react-bootstrap";
 
@@ -473,7 +472,6 @@ export default function MyComponent() {
 
   return isLoaded ? (
     <>
-      <Tracklayout />
       <div style={{ marginTop: "100px" }}>
         <Col md={4}>
           <label>Start Date:</label>
