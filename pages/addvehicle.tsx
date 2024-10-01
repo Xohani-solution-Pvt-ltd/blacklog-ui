@@ -12,7 +12,7 @@ const AddVehicle = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    const apiUrl = "http://localhost:8000/api/v1/addCar";
+    const apiUrl = "http://43.205.99.213:3000/api/v1/addCar";
 
     const formData = new FormData();
     formData.append("vehicleNo", vehicleNo);

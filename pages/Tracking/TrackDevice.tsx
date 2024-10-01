@@ -127,7 +127,7 @@ const TrackDevice = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost:8000/api/v1/fetchCar")
+      .get("http://43.205.99.213:3000/api/v1/fetchCar")
       .then((response) => {
         console.log("Fetched data:", response.data);
         setCarNames(response.data.data);
@@ -145,7 +145,7 @@ const TrackDevice = () => {
     const vehicleNo = selectedCar.vehicleNo;
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
+        `http://43.205.99.213:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
       );
 
       const data = await response.json();
@@ -190,172 +190,172 @@ const TrackDevice = () => {
     }
   };
 
-  useEffect(() => {
-    const initMap = async () => {
-      try {
-        if (FetchData.length > 0) {
-          const snappedRoadPath = await Promise.all(
-            FetchData.map(
-              async (point: {
-                latitude: string;
-                longitude: string;
-                speed: any;
-              }) => ({
-                lat: parseFloat(point.latitude),
-                lng: parseFloat(point.longitude),
-                speed: point.speed,
-              })
-            )
-          );
+  // useEffect(() => {
+  //   const initMap = async () => {
+  //     try {
+  //       if (FetchData.length > 0) {
+  //         const snappedRoadPath = await Promise.all(
+  //           FetchData.map(
+  //             async (point: {
+  //               latitude: string;
+  //               longitude: string;
+  //               speed: any;
+  //             }) => ({
+  //               lat: parseFloat(point.latitude),
+  //               lng: parseFloat(point.longitude),
+  //               speed: point.speed,
+  //             })
+  //           )
+  //         );
 
-          const speedData = snappedRoadPath.map((point) => point.speed);
+  //         const speedData = snappedRoadPath.map((point) => point.speed);
 
-          const routeColor = await determineRouteColor(speedData);
+  //         const routeColor = await determineRouteColor(speedData);
 
-          let currentColor = routeColor[0];
-          let currentSegment = [snappedRoadPath[0]];
+  //         let currentColor = routeColor[0];
+  //         let currentSegment = [snappedRoadPath[0]];
 
-          for (let i = 1; i < snappedRoadPath.length; i++) {
-            const color = routeColor[i];
+  //         for (let i = 1; i < snappedRoadPath.length; i++) {
+  //           const color = routeColor[i];
 
-            if (color === currentColor) {
-              currentSegment.push(snappedRoadPath[i]);
-            } else {
-              if (i > 1 && routeColor[i - 1] !== color) {
-                const route = new google.maps.Polyline({
-                  path: currentSegment,
-                  geodesic: true,
-                  strokeColor: currentColor,
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2.5,
-                  map: googleMap,
-                });
+  //           if (color === currentColor) {
+  //             currentSegment.push(snappedRoadPath[i]);
+  //           } else {
+  //             if (i > 1 && routeColor[i - 1] !== color) {
+  //               const route = new google.maps.Polyline({
+  //                 path: currentSegment,
+  //                 geodesic: true,
+  //                 strokeColor: currentColor,
+  //                 strokeOpacity: 1.0,
+  //                 strokeWeight: 2.5,
+  //                 map: googleMap,
+  //               });
 
-                const infoWindow = new google.maps.InfoWindow();
-                google.maps.event.addListener(
-                  route,
-                  "mouseover",
-                  async (event: any) => {
-                    const hoveredIndex = findHoveredIndex(
-                      event,
-                      route.getPath().getArray()
-                    );
-                    const hoveredPoint = FetchData[hoveredIndex];
+  //               const infoWindow = new google.maps.InfoWindow();
+  //               google.maps.event.addListener(
+  //                 route,
+  //                 "mouseover",
+  //                 async (event: any) => {
+  //                   const hoveredIndex = findHoveredIndex(
+  //                     event,
+  //                     route.getPath().getArray()
+  //                   );
+  //                   const hoveredPoint = FetchData[hoveredIndex];
 
-                    const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                                    <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
-                                    <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                                    <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                                    <div style="color : #ffffff"> Distance :</div>
-                                   </div>
-                                      `;
+  //                   const content = `<div style="background-color: #004d4d ;padding:2px; ">
+  //                                   <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+  //                                   <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+  //                                   <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
+  //                                   <div style="color : #ffffff"> Distance :</div>
+  //                                  </div>
+  //                                     `;
 
-                    infoWindow.setContent(content);
-                    infoWindow.setPosition(event.latLng);
-                    infoWindow.open(googleMap);
-                  }
-                );
+  //                   infoWindow.setContent(content);
+  //                   infoWindow.setPosition(event.latLng);
+  //                   infoWindow.open(googleMap);
+  //                 }
+  //               );
 
-                google.maps.event.addListener(
-                  route,
-                  "mouseout",
-                  (event: any) => {
-                    infoWindow.close();
-                  }
-                );
+  //               google.maps.event.addListener(
+  //                 route,
+  //                 "mouseout",
+  //                 (event: any) => {
+  //                   infoWindow.close();
+  //                 }
+  //               );
 
-                currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
-              } else {
-                currentSegment.push(snappedRoadPath[i]);
-              }
+  //               currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
+  //             } else {
+  //               currentSegment.push(snappedRoadPath[i]);
+  //             }
 
-              currentColor = color;
-            }
-          }
+  //             currentColor = color;
+  //           }
+  //         }
 
-          const route = new google.maps.Polyline({
-            path: currentSegment,
-            geodesic: true,
-            strokeColor: currentColor,
-            strokeOpacity: 1.0,
-            strokeWeight: 2.5,
-            map: googleMap,
-          });
+  //         const route = new google.maps.Polyline({
+  //           path: currentSegment,
+  //           geodesic: true,
+  //           strokeColor: currentColor,
+  //           strokeOpacity: 1.0,
+  //           strokeWeight: 2.5,
+  //           map: googleMap,
+  //         });
 
-          const infoWindow = new google.maps.InfoWindow();
+  //         const infoWindow = new google.maps.InfoWindow();
 
-          google.maps.event.addListener(
-            route,
-            "mouseover",
-            async (event: any) => {
-              const hoveredIndex = findHoveredIndex(
-                event,
-                route.getPath().getArray()
-              );
-              const hoveredPoint = FetchData[hoveredIndex];
-              const content = `<div style="background-color: #004d4d ;padding:2px; ">
-                            <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
-                            <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                            <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                            <div style="color : #ffffff"> Distance :</div>
-                           </div>
-                              `;
-              infoWindow.setContent(content);
-              infoWindow.setPosition(event.latLng);
-              infoWindow.open(googleMap);
-            }
-          );
+  //         google.maps.event.addListener(
+  //           route,
+  //           "mouseover",
+  //           async (event: any) => {
+  //             const hoveredIndex = findHoveredIndex(
+  //               event,
+  //               route.getPath().getArray()
+  //             );
+  //             const hoveredPoint = FetchData[hoveredIndex];
+  //             const content = `<div style="background-color: #004d4d ;padding:2px; ">
+  //                           <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
+  //                           <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+  //                           <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
+  //                           <div style="color : #ffffff"> Distance :</div>
+  //                          </div>
+  //                             `;
+  //             infoWindow.setContent(content);
+  //             infoWindow.setPosition(event.latLng);
+  //             infoWindow.open(googleMap);
+  //           }
+  //         );
 
-          google.maps.event.addListener(route, "mouseout", () => {
-            infoWindow.close();
-          });
-        }
-        setMapInitialized(true);
-      } catch (error) {
-        console.error("Error Initializing Map", error);
-      }
-    };
-    if (FetchData.length > 0 && !mapInitialized) {
-      initMap();
-    }
-  }, [FetchData, googleMap, mapInitialized]);
+  //         google.maps.event.addListener(route, "mouseout", () => {
+  //           infoWindow.close();
+  //         });
+  //       }
+  //       setMapInitialized(true);
+  //     } catch (error) {
+  //       console.error("Error Initializing Map", error);
+  //     }
+  //   };
+  //   if (FetchData.length > 0 && !mapInitialized) {
+  //     initMap();
+  //   }
+  // }, [FetchData, googleMap, mapInitialized]);
 
-  const findHoveredIndex = (event: any, path: any[]) => {
-    const latLng = event.latLng;
-    let closestIndex = 0;
-    let closestDistance = Number.MAX_VALUE;
+  // const findHoveredIndex = (event: any, path: any[]) => {
+  //   const latLng = event.latLng;
+  //   let closestIndex = 0;
+  //   let closestDistance = Number.MAX_VALUE;
 
-    for (let i = 0; i < path.length; i++) {
-      const distance = google.maps.geometry.spherical.computeDistanceBetween(
-        latLng,
-        path[i]
-      );
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = i;
-      }
-    }
-    return closestIndex;
-  };
+  //   for (let i = 0; i < path.length; i++) {
+  //     const distance = google.maps.geometry.spherical.computeDistanceBetween(
+  //       latLng,
+  //       path[i]
+  //     );
+  //     if (distance < closestDistance) {
+  //       closestDistance = distance;
+  //       closestIndex = i;
+  //     }
+  //   }
+  //   return closestIndex;
+  // };
 
-  const determineRouteColor = async (speedData: string | any[]) => {
-    const colors = [];
-    for (let i = 0; i < speedData.length - 1; i++) {
-      const currentSpeed = speedData[i];
-      const nextSpeed = speedData[i + 1];
-      const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
+  // const determineRouteColor = async (speedData: string | any[]) => {
+  //   const colors = [];
+  //   for (let i = 0; i < speedData.length - 1; i++) {
+  //     const currentSpeed = speedData[i];
+  //     const nextSpeed = speedData[i + 1];
+  //     const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
 
-      if (currentSpeed !== nextSpeed) {
-        colors.push(color);
-      } else {
-        colors.push(color);
-      }
-    }
+  //     if (currentSpeed !== nextSpeed) {
+  //       colors.push(color);
+  //     } else {
+  //       colors.push(color);
+  //     }
+  //   }
 
-    colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
+  //   colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
 
-    return colors;
-  };
+  //   return colors;
+  // };
 
   if (!isLoaded) {
     return <div>Loading...</div>;

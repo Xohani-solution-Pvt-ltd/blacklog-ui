@@ -25,7 +25,7 @@ const Adddriver = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://65.0.85.221/api/v1/editprofile", {
+      const response = await fetch("http://43.205.99.213:3000/api/v1/editprofile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

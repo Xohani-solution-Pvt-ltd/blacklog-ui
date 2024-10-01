@@ -28,7 +28,7 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:8000/api/v1/login",
+        "http://43.205.99.213:3000/api/v1/login",
         user
       );
       console.log("login success", response.data);
