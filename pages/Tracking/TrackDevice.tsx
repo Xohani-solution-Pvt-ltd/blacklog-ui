@@ -81,13 +81,9 @@ const TrackDevice = () => {
   const CarName = ({ car }) => (
     <Card sx={{ mb: 2 }}>
       <CardContent>
-        {/* <Typography variant="h6">{vehicle.name}</Typography> */}
         <Typography onClick={() => onSelectCar(car)}>
           Car No: {car.vehicleNo}
         </Typography>
-        {/* <Typography>Car Type: {vehicle.carType}</Typography> */}
-        {/* <Typography>Fuel:</Typography> */}
-        {/* <LinearProgress variant="determinate" value={vehicle.fuel} /> */}
       </CardContent>
     </Card>
   );
@@ -149,10 +145,7 @@ const TrackDevice = () => {
       );
 
       const data = await response.json();
-      const dataArray: {
-        latitude: number;
-        longitude: any;
-      }[] = [];
+      const dataArray = [];
 
       if (data && Array.isArray(data.selectedVehicle)) {
         data.selectedVehicle.forEach((object) => {
@@ -177,185 +170,20 @@ const TrackDevice = () => {
           }
         });
       }
+
       setFetchData(dataArray);
 
       if (dataArray.length > 0) {
+        const lastLocation = dataArray[dataArray.length - 1];
         setSelectedVehicleLocation({
-          lat: dataArray[0].latitude,
-          lng: dataArray[0].longitude,
+          lat: lastLocation.latitude,
+          lng: lastLocation.longitude,
         });
       }
     } catch (error) {
       console.error("Error Fetching Data", error);
     }
   };
-
-  // useEffect(() => {
-  //   const initMap = async () => {
-  //     try {
-  //       if (FetchData.length > 0) {
-  //         const snappedRoadPath = await Promise.all(
-  //           FetchData.map(
-  //             async (point: {
-  //               latitude: string;
-  //               longitude: string;
-  //               speed: any;
-  //             }) => ({
-  //               lat: parseFloat(point.latitude),
-  //               lng: parseFloat(point.longitude),
-  //               speed: point.speed,
-  //             })
-  //           )
-  //         );
-
-  //         const speedData = snappedRoadPath.map((point) => point.speed);
-
-  //         const routeColor = await determineRouteColor(speedData);
-
-  //         let currentColor = routeColor[0];
-  //         let currentSegment = [snappedRoadPath[0]];
-
-  //         for (let i = 1; i < snappedRoadPath.length; i++) {
-  //           const color = routeColor[i];
-
-  //           if (color === currentColor) {
-  //             currentSegment.push(snappedRoadPath[i]);
-  //           } else {
-  //             if (i > 1 && routeColor[i - 1] !== color) {
-  //               const route = new google.maps.Polyline({
-  //                 path: currentSegment,
-  //                 geodesic: true,
-  //                 strokeColor: currentColor,
-  //                 strokeOpacity: 1.0,
-  //                 strokeWeight: 2.5,
-  //                 map: googleMap,
-  //               });
-
-  //               const infoWindow = new google.maps.InfoWindow();
-  //               google.maps.event.addListener(
-  //                 route,
-  //                 "mouseover",
-  //                 async (event: any) => {
-  //                   const hoveredIndex = findHoveredIndex(
-  //                     event,
-  //                     route.getPath().getArray()
-  //                   );
-  //                   const hoveredPoint = FetchData[hoveredIndex];
-
-  //                   const content = `<div style="background-color: #004d4d ;padding:2px; ">
-  //                                   <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
-  //                                   <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-  //                                   <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-  //                                   <div style="color : #ffffff"> Distance :</div>
-  //                                  </div>
-  //                                     `;
-
-  //                   infoWindow.setContent(content);
-  //                   infoWindow.setPosition(event.latLng);
-  //                   infoWindow.open(googleMap);
-  //                 }
-  //               );
-
-  //               google.maps.event.addListener(
-  //                 route,
-  //                 "mouseout",
-  //                 (event: any) => {
-  //                   infoWindow.close();
-  //                 }
-  //               );
-
-  //               currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
-  //             } else {
-  //               currentSegment.push(snappedRoadPath[i]);
-  //             }
-
-  //             currentColor = color;
-  //           }
-  //         }
-
-  //         const route = new google.maps.Polyline({
-  //           path: currentSegment,
-  //           geodesic: true,
-  //           strokeColor: currentColor,
-  //           strokeOpacity: 1.0,
-  //           strokeWeight: 2.5,
-  //           map: googleMap,
-  //         });
-
-  //         const infoWindow = new google.maps.InfoWindow();
-
-  //         google.maps.event.addListener(
-  //           route,
-  //           "mouseover",
-  //           async (event: any) => {
-  //             const hoveredIndex = findHoveredIndex(
-  //               event,
-  //               route.getPath().getArray()
-  //             );
-  //             const hoveredPoint = FetchData[hoveredIndex];
-  //             const content = `<div style="background-color: #004d4d ;padding:2px; ">
-  //                           <div style="color : #ffffff">Speed: ${hoveredPoint.speed}</div>
-  //                           <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-  //                           <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-  //                           <div style="color : #ffffff"> Distance :</div>
-  //                          </div>
-  //                             `;
-  //             infoWindow.setContent(content);
-  //             infoWindow.setPosition(event.latLng);
-  //             infoWindow.open(googleMap);
-  //           }
-  //         );
-
-  //         google.maps.event.addListener(route, "mouseout", () => {
-  //           infoWindow.close();
-  //         });
-  //       }
-  //       setMapInitialized(true);
-  //     } catch (error) {
-  //       console.error("Error Initializing Map", error);
-  //     }
-  //   };
-  //   if (FetchData.length > 0 && !mapInitialized) {
-  //     initMap();
-  //   }
-  // }, [FetchData, googleMap, mapInitialized]);
-
-  // const findHoveredIndex = (event: any, path: any[]) => {
-  //   const latLng = event.latLng;
-  //   let closestIndex = 0;
-  //   let closestDistance = Number.MAX_VALUE;
-
-  //   for (let i = 0; i < path.length; i++) {
-  //     const distance = google.maps.geometry.spherical.computeDistanceBetween(
-  //       latLng,
-  //       path[i]
-  //     );
-  //     if (distance < closestDistance) {
-  //       closestDistance = distance;
-  //       closestIndex = i;
-  //     }
-  //   }
-  //   return closestIndex;
-  // };
-
-  // const determineRouteColor = async (speedData: string | any[]) => {
-  //   const colors = [];
-  //   for (let i = 0; i < speedData.length - 1; i++) {
-  //     const currentSpeed = speedData[i];
-  //     const nextSpeed = speedData[i + 1];
-  //     const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
-
-  //     if (currentSpeed !== nextSpeed) {
-  //       colors.push(color);
-  //     } else {
-  //       colors.push(color);
-  //     }
-  //   }
-
-  //   colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
-
-  //   return colors;
-  // };
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -384,9 +212,14 @@ const TrackDevice = () => {
             >
               <Typography variant="h6">Map Overview</Typography>
               <GoogleMap
+                key={selectedVehicleLocation.lat + selectedVehicleLocation.lng}
                 zoom={10}
-                center={center}
-                options={options}
+                center={selectedVehicleLocation}
+                options={{
+                  mapTypeControl: false,
+                  zoomControl: true,
+                  streetViewControl: false,
+                }}
                 onLoad={onMapLoad}
                 mapContainerStyle={mapContainerStyle}
                 onClick={() => setIsInfoWindowOpen(false)}
