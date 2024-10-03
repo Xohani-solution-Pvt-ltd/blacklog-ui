@@ -142,14 +142,28 @@ export default function ReportContent() {
 
       if (data.length > 0) {
         const snappedRoadPath = await Promise.all(
-          data.map(async (point) => ({
-            lat: parseFloat(point.latitude),
-            lng: parseFloat(point.longitude),
-            speed: point.speed,
-          }))
-        );
+          data.map(async (point) => {
+            if (
+              point &&
+              point.latitude &&
+              point.longitude &&
+              point.speed &&
+              point.time
+            ) {
+              return {
+                lat: parseFloat(point.latitude),
+                lng: parseFloat(point.longitude),
+                speed: point.speed,
+                time: point.time,
+              };
+            } else {
+              return null;
+            }
+          })
+        ).filter((point) => point !== null);
 
         const speedData = snappedRoadPath.map((point) => point.speed);
+        const timeData = snappedRoadPath.map((point) => point.time);
         const routeColor = await determineRouteColor(speedData);
         let currentColor = routeColor[0];
         let currentSegment = [snappedRoadPath[0]];
@@ -180,11 +194,9 @@ export default function ReportContent() {
                   );
                   const hoveredPoint = FetchData[hoveredIndex];
 
-                  const content = `<div style="background-color: #004d4d ;padding:2px; ">
+                  const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
                                   <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
-                                  <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                                  <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                                  <div style="color : #ffffff"> Distance :</div>
+                                  <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>                                 
                                  </div>
                                     `;
 
@@ -227,11 +239,9 @@ export default function ReportContent() {
               route.getPath().getArray()
             );
             const hoveredPoint = FetchData[hoveredIndex];
-            const content = `<div style="background-color: #004d4d ;padding:2px; ">
+            const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
                               <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
                               <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                              <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                              <div style="color : #ffffff"> Distance :</div>
                              </div>
                                 `;
             infoWindow.setContent(content);
@@ -301,6 +311,7 @@ export default function ReportContent() {
                   latitude: parseFloat(object.Latitude),
                   longitude: parseFloat(object.Longitude),
                   speed: object.Speed,
+                  time: object.Time,
                 };
                 dataArray.push(formattedData);
               }
@@ -337,10 +348,12 @@ export default function ReportContent() {
               lat: parseFloat(point.latitude),
               lng: parseFloat(point.longitude),
               speed: point.speed,
+              time: point.time,
             }))
           );
 
           const speedData = snappedRoadPath.map((point) => point.speed);
+          const timeData = snappedRoadPath.map((point) => point.time);
           const routeColor = await determineRouteColor(speedData);
           let currentColor = routeColor[0];
           let currentSegment = [snappedRoadPath[0]];
@@ -371,11 +384,9 @@ export default function ReportContent() {
                     );
                     const hoveredPoint = FetchData[hoveredIndex];
 
-                    const content = `<div style="background-color: #004d4d ;padding:2px;">
+                    const content = `<div style="background-color: #ff6e33 ;padding:2px;">
                                     <div style="color : #ffffff">Speed :${hoveredPoint.speed}</div>
-                                    <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                                    <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                                    <div style="color : #ffffff"> Distance :</div>
+                                    <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>                                    
                                    </div>
                                       `;
 
@@ -421,11 +432,9 @@ export default function ReportContent() {
                 route.getPath().getArray()
               );
               const hoveredPoint = FetchData[hoveredIndex];
-              const content = `<div style="background-color: #004d4d ;padding:2px; ">
+              const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
                             <div style="color : #ffffff">Speed :${hoveredPoint.speed}</div>
-                            <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                            <div style="color : #ffffff"> Date :${hoveredPoint.date}</div>
-                            <div style="color : #ffffff"> Distance :</div>
+                            <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>                           
                            </div>
                               `;
               infoWindow.setContent(content);
@@ -644,43 +653,6 @@ export default function ReportContent() {
                           zoom={15}
                           onClick={() => setIsInfoWindowOpen(false)}
                         >
-                          <MarkerF
-                            position={center}
-                            cursor="pointer"
-                            onClick={MarkerClicked}
-                          >
-                            {isInfoWindowOpen && (
-                              <InfoWindowF
-                                onCloseClick={() => setIsInfoWindowOpen(false)}
-                                position={center}
-                              >
-                                <div className="w-80 p-2">
-                                  <div className="flex items-center mb-2 space-x-5">
-                                    <Image
-                                      src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                      style={{
-                                        width: "56px",
-                                        height: "56px",
-                                        borderRadius: "50%",
-                                      }}
-                                      alt=""
-                                    />
-                                    <div>
-                                      <h3 className="text-xl font-bold">
-                                        some title
-                                      </h3>
-                                      <p>some subtitle</p>
-                                    </div>
-                                  </div>
-                                  <p>
-                                    Lorem ipsum dolor sit amet, consectetur
-                                    adipisicing elit. Voluptate, dolor nisi
-                                    accusantium quia tenetur voluptatum.
-                                  </p>
-                                </div>
-                              </InfoWindowF>
-                            )}
-                          </MarkerF>
                           <></>
                         </GoogleMap>
                         <Button
@@ -696,36 +668,6 @@ export default function ReportContent() {
                         width={{ xs: "100%", md: "50%" }}
                         pl={{ xs: 0, md: 2 }}
                       >
-                        {/* <Table>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Device ID</TableCell>
-                              <TableCell>Start Date</TableCell>
-                              <TableCell>End Date</TableCell>
-                              <TableCell>Start Time</TableCell>
-                              <TableCell>End Time</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {Array.isArray(data) && data.length > 0 ? (
-                              data.map((row) => (
-                                <TableRow key={row.id}>
-                                  <TableCell>{row.deviceId}</TableCell>
-                                  <TableCell>{row.startDate}</TableCell>
-                                  <TableCell>{row.endDate}</TableCell>
-                                  <TableCell>{row.startTime}</TableCell>
-                                  <TableCell>{row.endTime}</TableCell>
-                                </TableRow>
-                              ))
-                            ) : (
-                              <TableRow>
-                                <TableCell colSpan={8}>
-                                  No data available
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table> */}
                         <Grid item xs={12}>
                           {FetchData && FetchData.length > 0 && (
                             <SummaryTable data={FetchData} />
