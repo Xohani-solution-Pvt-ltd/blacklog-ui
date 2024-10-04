@@ -123,7 +123,7 @@ const TrackDevice = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://43.205.99.213:3000/api/v1/fetchCar")
+      .get("http://52.66.172.170:3000/api/v1/fetchCar")
       .then((response) => {
         console.log("Fetched data:", response.data);
         setCarNames(response.data.data);
@@ -141,7 +141,7 @@ const TrackDevice = () => {
     const vehicleNo = selectedCar.vehicleNo;
     try {
       const response = await fetch(
-        `http://43.205.99.213:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
+        `http://52.66.172.170:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
       );
 
       const data = await response.json();

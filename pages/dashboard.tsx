@@ -227,7 +227,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://43.205.99.213:3000/api/v1/fetchCar");
+        const response = await fetch("http://52.66.172.170:3000/api/v1/fetchCar");
         const data = await response.json();
         const dataArray = [];
 
@@ -255,7 +255,7 @@ const Dashboard = () => {
       const markersArray = [];
 
       for (const vehicleNo of vehicleNumbers) {
-        const apiUrl = `http://43.205.99.213:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`;
+        const apiUrl = `http://52.66.172.170:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`;
         try {
           const response = await fetch(apiUrl);
           if (!response.ok) {
@@ -290,7 +290,7 @@ const Dashboard = () => {
   const handleMarkerClick = async (marker: any) => {
     try {
       const vehicleNo = marker.vehicleNo;
-      const apiUrl = `http://43.205.99.213:3000/api/v1/fetchsingleCar?vehicleNo=${vehicleNo}`;
+      const apiUrl = `http://52.66.172.170:3000/api/v1/fetchsingleCar?vehicleNo=${vehicleNo}`;
 
       const response = await fetch(apiUrl);
       const data = await response.json();

@@ -86,7 +86,7 @@ export default function ReportContent() {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://43.205.99.213:3000/api/v1/fetchCar")
+      .get("http://52.66.172.170:3000/api/v1/fetchCar")
       .then((response) => {
         console.log("Fetched data:", response.data);
         setCarNames(response.data.data);
@@ -280,7 +280,7 @@ export default function ReportContent() {
         return;
       }
 
-      const apiUrl = `http://43.205.99.213:3000/api/v1/fetchvehicleGyroData?vehicleNo=${selectedVehicle.vehicleNo}&startDate=${selectedStartDate}&endDate=${selectedEndDate}`;
+      const apiUrl = `http://52.66.172.170:3000/api/v1/fetchvehicleGyroData?vehicleNo=${selectedVehicle.vehicleNo}&startDate=${selectedStartDate}&endDate=${selectedEndDate}`;
 
       try {
         const response = await fetch(apiUrl);
