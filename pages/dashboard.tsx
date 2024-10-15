@@ -227,7 +227,9 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://52.66.172.170:3000/api/v1/fetchCar");
+        const response = await fetch(
+          "http://52.66.172.170:3000/api/v1/fetchCar"
+        );
         const data = await response.json();
         const dataArray = [];
 
@@ -441,17 +443,6 @@ const Dashboard = () => {
                             >
                               <div className="w-80 p-2">
                                 <div className="flex items-center mb-2 space-x-5">
-                                  {/* <Image
-                                    src={selectedMarker.details.imageUrl}
-                                    style={{
-                                      width: "56px",
-                                      height: "56px",
-                                      borderRadius: "50%",
-                                    }}
-                                    alt=""
-                                    width={56}
-                                    height={56}
-                                  /> */} 
                                   <div>
                                     <h4 className="text-xl-font-bold">
                                       vehicleNo :{" "}

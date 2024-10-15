@@ -42,6 +42,7 @@ export default function ReportContent() {
   const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [visibleMap, setVisibleMap] = useState<string | null>(null);
+  const [filteredData, setFilteredData] = useState<any>([]);
 
   const handleStartDateChange = (e: any) => {
     setStartDateInput(e.target.value);
@@ -308,10 +309,15 @@ export default function ReportContent() {
                 String(object.Longitude).length > 7
               ) {
                 const formattedData = {
+                  vehicleNo: selectedVehicle.vehicleNo,
                   latitude: parseFloat(object.Latitude),
                   longitude: parseFloat(object.Longitude),
                   speed: object.Speed,
                   time: object.Time,
+                  startDateInput: selectedStartDate,
+                  endDateInput: selectedEndDate,
+                  startTime: object.StartTime,
+                  endTime: object.EndTime,
                 };
                 dataArray.push(formattedData);
               }
@@ -319,6 +325,7 @@ export default function ReportContent() {
           });
         }
         setFetchData(dataArray);
+        setFilteredData(dataArray); // Set filtered data for the table
         drawRouteOnMap(dataArray);
       } catch (error) {
         console.log("Error:", error.message);
@@ -498,30 +505,34 @@ export default function ReportContent() {
     return colors;
   };
 
-  const SummaryTable = ({ data }) => (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>Vehicle No</TableCell>
-          <TableCell>Start Date</TableCell>
-          <TableCell>End Date</TableCell>
-          <TableCell>Start Time</TableCell>
-          <TableCell>End Time</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {data.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell>{item.vehicleNo}</TableCell>
-            <TableCell>{item.startDateInput}</TableCell>
-            <TableCell>{item.endDateInput}</TableCell>
-            <TableCell>{item.startTime}</TableCell>
-            <TableCell>{item.endTime}</TableCell>
+  const SummaryTable = ({ data }) => {
+    const summaryData = data.length > 0 ? [data[0]] : [];
+
+    return (
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Vehicle No</TableCell>
+            <TableCell>Start Date</TableCell>
+            <TableCell>End Date</TableCell>
+            <TableCell>Start Time</TableCell>
+            <TableCell>End Time</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+        </TableHead>
+        <TableBody>
+          {summaryData.map((item, index) => (
+            <TableRow key={index}>
+              <TableCell>{item.vehicleNo}</TableCell>
+              <TableCell>{item.startDateInput}</TableCell>
+              <TableCell>{item.endDateInput}</TableCell>
+              <TableCell>{item.startTime}</TableCell>
+              <TableCell>{item.endTime}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
 
   if (!isLoaded) {
     return <p>Loading...</p>;
@@ -670,7 +681,7 @@ export default function ReportContent() {
                       >
                         <Grid item xs={12}>
                           {FetchData && FetchData.length > 0 && (
-                            <SummaryTable data={FetchData} />
+                            <SummaryTable data={filteredData} />
                           )}
                         </Grid>
                       </Box>
