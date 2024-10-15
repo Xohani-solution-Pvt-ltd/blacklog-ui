@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,57 +7,44 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Avatar,
   Typography,
   Box,
 } from "@mui/material";
 import Layout from "@/components/Layout";
 import Sidebar from "@/components/Sidebar";
 
-const temperatureData = [
-  {
-    deviceId: "MP09ZD1111",
-    driver: "Brayden Doe",
-    date: "06-07-2024",
-    time: "08:10:00 AM",
-    location: "Indore NH 16 123 Main st",
-    avgTemp: 25,
-    minTemp: 21,
-    maxTemp: 35,
-  },
-  {
-    deviceId: "MP09ZD2222",
-    driver: "Brayden Doe",
-    date: "06-07-2024",
-    time: "08:10:00 AM",
-    location: "Indore NH 16 123 Main st",
-    avgTemp: 25,
-    minTemp: 21,
-    maxTemp: 35,
-  },
-  {
-    deviceId: "MP09ZD3333",
-    driver: "Brayden Doe",
-    date: "06-07-2024",
-    time: "08:10:00 AM",
-    location: "Indore NH 16 123 Main st",
-    avgTemp: 25,
-    minTemp: 21,
-    maxTemp: 35,
-  },
-  {
-    deviceId: "MP09ZD4444",
-    driver: "Brayden Doe",
-    date: "06-07-2024",
-    time: "08:10:00 AM",
-    location: "Indore NH 16 123 Main st",
-    avgTemp: 25,
-    minTemp: 21,
-    maxTemp: 35,
-  },
-];
-
 const Temperature = () => {
+  const [gyroData, setGyroData] = useState([]);
+
+  useEffect(() => {
+    const fetchGyroData = async () => {
+      try {
+        const response = await fetch(
+          "http://52.66.172.170:3000/api/v1/fetchGyro"
+        );
+        const result = await response.json();
+        if (Array.isArray(result.data)) {
+          const lastData = getLastData(result.data);
+          setGyroData(lastData);
+        }
+      } catch (error) {
+        console.error("Error fetching gyro data:", error);
+      }
+    };
+
+    fetchGyroData();
+  }, []);
+
+  const getLastData = (data) => {
+    const vehicleMap = {};
+
+    data.forEach((entry) => {
+      vehicleMap[entry.vehicleNo] = entry;
+    });
+
+    return Object.values(vehicleMap);
+  };
+
   return (
     <div className="dashboard-layout">
       <Layout />
@@ -69,10 +56,6 @@ const Temperature = () => {
           <Typography variant="h6" gutterBottom>
             Temperature
           </Typography>
-          <div
-            className="another-deatils underlineStyle"
-            style={{ marginTop: "10px" }}
-          ></div>
         </Box>
         <TableContainer component={Paper}>
           <Typography
@@ -81,40 +64,34 @@ const Temperature = () => {
             component="div"
             sx={{ padding: "8px", marginTop: "10px" }}
           >
-            Temperature Summary
+            Last Temperature Summary (per Vehicle)
           </Typography>
           <Table sx={{ minWidth: 650 }} aria-label="temperature summary table">
             <TableHead>
               <TableRow sx={{ backgroundColor: "gray" }}>
-                <TableCell>Device ID</TableCell>
-                <TableCell>Driver</TableCell>
+                <TableCell>Vehicle No</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Time</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell align="right">Avg Temp</TableCell>
-                <TableCell align="right">Min Temp</TableCell>
-                <TableCell align="right">Max Temp</TableCell>
+                <TableCell>Temperature</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {temperatureData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{row.deviceId}</TableCell>
-                  <TableCell>
-                    {/* <Avatar
-                      alt={row.driver}
-                      src={`/static/images/avatar/${row.driver}.jpg`}
-                    /> */}
-                    {row.driver}
+              {gyroData.length > 0 ? (
+                gyroData.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{row.vehicleNo}</TableCell>
+                    <TableCell>{row.Date}</TableCell>
+                    <TableCell>{row.Time}</TableCell>
+                    <TableCell>{row.temperature}°C</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    No data available
                   </TableCell>
-                  <TableCell>{row.date}</TableCell>
-                  <TableCell>{row.time}</TableCell>
-                  <TableCell>{row.location}</TableCell>
-                  <TableCell align="center">{row.avgTemp}</TableCell>
-                  <TableCell align="center">{row.minTemp}</TableCell>
-                  <TableCell align="center">{row.maxTemp}</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
