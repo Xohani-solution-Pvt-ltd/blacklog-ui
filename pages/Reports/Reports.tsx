@@ -541,7 +541,7 @@ export default function ReportContent() {
     <div className="dashboard-layout">
       <Layout />
       <div className="sidebar-container">
-        <Sidebar />
+        <Sidebar isOpen={undefined} />
       </div>
       <div className="dashboard-content" style={{ marginTop: "65px" }}>
         <Container>

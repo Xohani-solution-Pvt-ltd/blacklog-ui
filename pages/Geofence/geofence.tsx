@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Card,
@@ -16,33 +16,12 @@ const mapContainerStyle = {
   height: "400px",
 };
 
-const vehicles = [
-  {
-    name: "Hyundai Creta",
-    carNo: "MP09ZD2225",
-    carType: "Hatchback",
-    fuel: 70,
-  },
-  {
-    name: "Hyundai i20",
-    carNo: "MP09ZD2225",
-    carType: "Flatbed Truck",
-    fuel: 35,
-  },
-  {
-    name: "Skoda Kushaq",
-    carNo: "MP09ZD2225",
-    carType: "Hatchback",
-    fuel: 70,
-  },
-];
-
 const VehicleCard = ({ vehicle }) => (
   <Card sx={{ mb: 2 }}>
     <CardContent>
       <Typography variant="h6">{vehicle.name}</Typography>
-      <Typography>Car No: {vehicle.carNo}</Typography>
-      <Typography>Car Type: {vehicle.carType}</Typography>
+      <Typography>Vehicle No: {vehicle.vehicleNo}</Typography>
+      <Typography>Model: {vehicle.model}</Typography>
       <Typography>Fuel:</Typography>
       <LinearProgress variant="determinate" value={vehicle.fuel} />
     </CardContent>
@@ -58,9 +37,26 @@ const Geofence = () => {
   const [geofencePath, setGeofencePath] = useState<geoFenceTypes[]>([
     { lat: 37.7749, lng: -122.4194 },
   ]);
+  const [vehicles, setVehicles] = useState([]);
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_MAP_API_KEY as string,
   });
+
+  const fetchVehicleData = async () => {
+    try {
+      const response = await fetch("http://52.66.172.170:3000/api/v1/fetchCar");
+      const result = await response.json();
+      if (result.data) {
+        setVehicles(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching vehicles:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchVehicleData();
+  }, []);
 
   const handleMapClick = useCallback((event: any) => {
     const lat1 = event.latLng.lat();
@@ -112,11 +108,15 @@ const Geofence = () => {
             All Vehicles Show Out of Geofence
           </Typography>
           <Grid container spacing={2}>
-            {vehicles.map((vehicle, index) => (
-              <Grid item xs={12} sm={4} key={index}>
-                <VehicleCard vehicle={vehicle} />
-              </Grid>
-            ))}
+            {vehicles.length > 0 ? (
+              vehicles.map((vehicle, index) => (
+                <Grid item xs={12} sm={4} key={index}>
+                  <VehicleCard vehicle={vehicle} />
+                </Grid>
+              ))
+            ) : (
+              <Typography>No vehicles available</Typography>
+            )}
           </Grid>
         </Box>
       </div>

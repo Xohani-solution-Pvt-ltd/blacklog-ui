@@ -49,7 +49,7 @@ const Temperature = () => {
     <div className="dashboard-layout">
       <Layout />
       <div className="sidebar-container">
-        <Sidebar />
+        <Sidebar isOpen={undefined} />
       </div>
       <div className="dashboard-content" style={{ marginTop: "50px" }}>
         <Box sx={{ p: 2 }}>

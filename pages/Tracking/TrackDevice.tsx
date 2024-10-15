@@ -82,7 +82,7 @@ const TrackDevice = () => {
     <Card sx={{ mb: 2 }}>
       <CardContent>
         <Typography onClick={() => onSelectCar(car)}>
-          Car No: {car.vehicleNo}
+          Vehicle No: {car.vehicleNo}
         </Typography>
       </CardContent>
     </Card>
@@ -193,7 +193,7 @@ const TrackDevice = () => {
     <div className="dashboard-layout">
       <Layout />
       <div className="sidebar-container">
-        <Sidebar />
+        <Sidebar isOpen={undefined} />
       </div>
       <div className="dashboard-content" style={{ marginTop: "50px" }}>
         <Box sx={{ p: 2 }}>
