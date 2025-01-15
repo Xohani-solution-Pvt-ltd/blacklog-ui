@@ -12,7 +12,7 @@ export default function Rtd() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  console.log("data of ===", fetchdata);
+  // console.log("data of ===", fetchdata);
 
   return (
     <>

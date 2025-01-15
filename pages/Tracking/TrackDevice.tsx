@@ -210,7 +210,7 @@ const TrackDevice = () => {
             <Box
               sx={{ width: { xs: "100%", md: "70%" }, mb: { xs: 2, md: 0 } }}
             >
-              <Typography variant="h6">Map Overview</Typography>
+              {/* <Typography variant="h6">Map Overview</Typography> */}
               <GoogleMap
                 key={selectedVehicleLocation.lat + selectedVehicleLocation.lng}
                 zoom={10}
