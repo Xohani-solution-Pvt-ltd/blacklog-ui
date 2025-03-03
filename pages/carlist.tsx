@@ -4,7 +4,21 @@ import Layout from "@/components/Layout";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import axios from "axios";
 
-const CarName = ({ car, onSelectCar, onDeleteCar }) => (
+interface Car {
+  id: string;
+  vehicleNo: string;
+  model: string;
+  year: number;
+  image: string;
+}
+
+interface CarNameProps {
+  car: Car;
+  onSelectCar: (car: Car) => void;
+  onDeleteCar: (id: string) => void;
+}
+
+const CarName: React.FC<CarNameProps> = ({ car, onSelectCar, onDeleteCar }) => (
   <li className="carItem">
     <p onClick={() => onSelectCar(car)}>{car.vehicleNo}</p>
     <button
@@ -16,7 +30,11 @@ const CarName = ({ car, onSelectCar, onDeleteCar }) => (
   </li>
 );
 
-const CarDetails = ({ car }) => (
+interface CarDetailsProps {
+  car: Car;
+}
+
+const CarDetails: React.FC<CarDetailsProps> = ({ car }) => (
   <div>
     <h4>Selected Car Details:</h4>
     <p>Name: {car.vehicleNo}</p>
@@ -26,18 +44,18 @@ const CarDetails = ({ car }) => (
   </div>
 );
 
-const Vehicles = () => {
+const Vehicles: React.FC = () => {
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY as string;
-  const [searchTerm, setSearchTerm] = useState("");
-  const [carNames, setCarNames] = useState([]);
-  const [selectedCar, setSelectedCar] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [carNames, setCarNames] = useState<Car[]>([]);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost:8000/api/v1/fetchCar")
+      .get<{ data: Car[] }>("http://localhost:8000/api/v1/fetchCar")
       .then((response) => {
         console.log("Fetched data:", response.data);
         setCarNames(response.data.data);
@@ -53,7 +71,7 @@ const Vehicles = () => {
   useEffect(() => {
     if (selectedCar) {
       axios
-        .get(`http://localhost:8000/api/v1/vehicleData/${selectedCar.id}`)
+        .get<Car>(`http://localhost:8000/api/v1/vehicleData/${selectedCar.id}`)
         .then((response) => {
           console.log("Selected car details:", response.data);
         })
@@ -63,7 +81,7 @@ const Vehicles = () => {
     }
   }, [selectedCar]);
 
-  const onDeleteCar = (carId: any) => {
+  const onDeleteCar = (carId: string) => {
     console.log("Deleting car with ID:", carId);
     axios
       .delete(`http://localhost:8000/api/v1/removeVehicle?id=${carId}`)
@@ -80,7 +98,7 @@ const Vehicles = () => {
       });
   };
 
-  const onSearch = (value: any) => {
+  const onSearch = (value: string) => {
     setSearchTerm(value);
   };
 
@@ -128,9 +146,7 @@ const Vehicles = () => {
                           <CarName
                             key={car.id}
                             car={car}
-                            onSelectCar={(selectedCar) =>
-                              setSelectedCar(selectedCar)
-                            }
+                            onSelectCar={setSelectedCar}
                             onDeleteCar={onDeleteCar}
                           />
                         ))}

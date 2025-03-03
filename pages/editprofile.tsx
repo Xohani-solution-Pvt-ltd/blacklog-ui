@@ -2,22 +2,62 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  joiningDate: string;
+  mobileNumber: string;
+  password: string;
+  gender: string;
+  confirmPassword: string;
+  dateOfBirth: string;
+  education: string;
+  address: string;
+  photo: File | null;
+}
+
 const EditProfile = () => {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    joiningDate: "",
+    mobileNumber: "",
+    password: "",
+    gender: "",
+    confirmPassword: "",
+    dateOfBirth: "",
+    education: "",
+    address: "",
+    photo: null,
+  });
 
-  const handleInputChange = (e) => {
+  // Handle text input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFormData({ ...formData, photo: file });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Use optional chaining to avoid null error
+    if (file) {
+      setFormData((prevData) => ({
+        ...prevData,
+        photo: file,
+      }));
+    }
   };
 
-  const handleFormSubmit = async (e) => {
+  // Handle form submission
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData);
+
+    // Reset form
     setFormData({
       firstName: "",
       lastName: "",
@@ -34,6 +74,7 @@ const EditProfile = () => {
     });
   };
 
+  // Handle form reset
   const handleFormReset = () => {
     setFormData({
       firstName: "",
@@ -63,9 +104,7 @@ const EditProfile = () => {
             <Row>
               <Col sm={6}>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="firstName">
-                    First Name
-                  </Form.Label>
+                  <Form.Label htmlFor="firstName">First Name</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter First Name"
@@ -75,11 +114,9 @@ const EditProfile = () => {
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="email">
-                    Email
-                  </Form.Label>
+                  <Form.Label htmlFor="email">Email</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="email"
                     placeholder="Enter Email"
                     name="email"
                     value={formData.email}
@@ -87,21 +124,17 @@ const EditProfile = () => {
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="mobilnumber">
-                    Mobile Number
-                  </Form.Label>
+                  <Form.Label htmlFor="mobileNumber">Mobile Number</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter Mobile Number"
-                    name="Mobile Number"
+                    name="mobileNumber"
                     value={formData.mobileNumber}
                     onChange={handleInputChange}
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="gender">
-                    Gender
-                  </Form.Label>
+                  <Form.Label htmlFor="gender">Gender</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter Gender"
@@ -111,13 +144,10 @@ const EditProfile = () => {
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="DateofBirth">
-                    Date of Birth
-                  </Form.Label>
+                  <Form.Label htmlFor="dateOfBirth">Date of Birth</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder="Enter Date of Birth"
-                    name="Date of Birth"
+                    type="date"
+                    name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleInputChange}
                   />
@@ -125,35 +155,28 @@ const EditProfile = () => {
               </Col>
               <Col sm={6}>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="lastName">
-                    Last Name
-                  </Form.Label>
+                  <Form.Label htmlFor="lastName">Last Name</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter Last Name"
-                    name="Last Name"
+                    name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="JoiningDate">
-                    Joining Date
-                  </Form.Label>
+                  <Form.Label htmlFor="joiningDate">Joining Date</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder="Enter Joining Date"
-                    name="joining Date"
+                    type="date"
+                    name="joiningDate"
                     value={formData.joiningDate}
                     onChange={handleInputChange}
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="Password">
-                    Password
-                  </Form.Label>
+                  <Form.Label htmlFor="password">Password</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="password"
                     placeholder="Enter Password"
                     name="password"
                     value={formData.password}
@@ -161,25 +184,23 @@ const EditProfile = () => {
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="ConfirmPassword">
+                  <Form.Label htmlFor="confirmPassword">
                     Confirm Password
                   </Form.Label>
                   <Form.Control
-                    type="text"
+                    type="password"
                     placeholder="Enter Confirm Password"
-                    name=" ConfirmPassword"
+                    name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                   />
                 </Col>
                 <Col sm={8}>
-                  <Form.Label column sm={8} htmlFor="Education">
-                    Education
-                  </Form.Label>
+                  <Form.Label htmlFor="education">Education</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter Education"
-                    name="Education"
+                    name="education"
                     value={formData.education}
                     onChange={handleInputChange}
                   />
@@ -188,12 +209,9 @@ const EditProfile = () => {
             </Row>
             <Col sm={12}>
               <Col sm={10}>
-                <Form.Label column sm={10} htmlFor="Address">
-                  Address
-                </Form.Label>
+                <Form.Label htmlFor="address">Address</Form.Label>
                 <Form.Control
-                  className="address-style"
-                  type="address"
+                  as="textarea"
                   placeholder="Enter Address"
                   name="address"
                   value={formData.address}
@@ -202,9 +220,7 @@ const EditProfile = () => {
               </Col>
             </Col>
             <div className="pt-3">
-              <Form.Label column sm={3}>
-                Upload Photo(150px*150px)
-              </Form.Label>
+              <Form.Label>Upload Photo (150px × 150px)</Form.Label>
               <Col sm={3}>
                 <Form.Control
                   type="file"
@@ -227,4 +243,5 @@ const EditProfile = () => {
     </>
   );
 };
+
 export default EditProfile;

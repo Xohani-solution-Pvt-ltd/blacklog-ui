@@ -13,7 +13,11 @@ import DeviceThermostatIcon from "@mui/icons-material/DeviceThermostat";
 import SpatialTrackingIcon from "@mui/icons-material/SpatialTracking";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-export default function DashboardSidebar({ isOpen }) {
+interface DashboardSidebarProps {
+  isOpen: boolean;
+}
+
+export default function DashboardSidebar({ isOpen }: DashboardSidebarProps) {
   const classes =
     "MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-1xphdof-JoyListItemButton-root";
 

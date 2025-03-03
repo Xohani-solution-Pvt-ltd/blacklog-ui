@@ -1,9 +1,43 @@
 import { Table, Container, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import Layout from "@/components/Layout";
+
+interface GyroData {
+  GPSfix: string;
+  Date: string;
+  Time: string;
+  Latitude: number;
+  LatitudeDirection: string;
+  Longitude: number;
+  LongitudeDirection: string;
+  Speed: number;
+  Heading: number;
+  NoOfSatellites: number;
+  Altitude: number;
+  PDOP: number;
+  HDOP: number;
+  NetworkOperatorName: string;
+  Ignition: string;
+  MainPowerStatus: string;
+  MainInputVoltage: number;
+  EmergencyStatus: string;
+  GSMSignalStrength: number;
+  MCC: string;
+  MNC: string;
+  LAC: string;
+  CellId: string;
+  NMR: string;
+  DigitalInputStatus: string;
+  acceloX: number;
+  acceloY: number;
+  acceloZ: number;
+  gyroX: number;
+  gyroY: number;
+  gyroZ: number;
+  temperature: number;
+}
 
 export default function Rtd() {
-  const [fetchdata, setFetchData] = useState([]);
+  const [fetchdata, setFetchData] = useState<GyroData[]>([]);
 
   useEffect(() => {
     fetch("http://52.66.172.170:3000/api/v1/fetchGyro")
@@ -12,24 +46,12 @@ export default function Rtd() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  // console.log("data of ===", fetchdata);
-
   return (
     <>
-      <Container className="" fluid style={{ overflow: "auto" }}>
-        <Row className="">
+      <Container fluid style={{ overflow: "auto" }}>
+        <Row>
           <h1 className="text-center">Real Time Data</h1>
-          <Table
-            style={{
-              width: "100%",
-              maxHeight: "auto",
-              overflow: "auto",
-              border: "1px solid",
-            }}
-            striped
-            bordered
-            hover
-          >
+          <Table striped bordered hover>
             <thead>
               <tr>
                 <th>GPSfix</th>
@@ -37,7 +59,7 @@ export default function Rtd() {
                 <th>Time</th>
                 <th>Latitude</th>
                 <th>Latitude Direction</th>
-                <th>longitude</th>
+                <th>Longitude</th>
                 <th>Longitude Direction</th>
                 <th>Speed</th>
                 <th>Heading</th>
@@ -63,48 +85,47 @@ export default function Rtd() {
                 <th>gyroX</th>
                 <th>gyroY</th>
                 <th>gyroZ</th>
-                <th>tempreture</th>
+                <th>temperature</th>
               </tr>
             </thead>
 
             <tbody>
-              {fetchdata &&
-                fetchdata.map((data) => (
-                  <tr key={data}>
-                    <td>{data.GPSfix}</td>
-                    <td>{data.Date}</td>
-                    <td>{data.Time}</td>
-                    <td>{data.Latitude}</td>
-                    <td>{data.LatitudeDirection}</td>
-                    <td>{data.Longitude}</td>
-                    <td>{data.LongitudeDirection}</td>
-                    <td>{data.Speed}</td>
-                    <td>{data.Heading}</td>
-                    <td>{data.NoOfSatellites}</td>
-                    <td>{data.Altitude}</td>
-                    <td>{data.PDOP}</td>
-                    <td>{data.HDOP}</td>
-                    <td>{data.NetworkOperatorName}</td>
-                    <td>{data.Ignition}</td>
-                    <td>{data.MainPowerStatus}</td>
-                    <td>{data.MainInputVoltage}</td>
-                    <td>{data.EmergencyStatus}</td>
-                    <td>{data.GSMSignalStrength}</td>
-                    <td>{data.MCC}</td>
-                    <td>{data.MNC}</td>
-                    <td>{data.LAC}</td>
-                    <td>{data.CellId}</td>
-                    <td>{data.NMR}</td>
-                    <td>{data.DigitalInputStatus}</td>
-                    <td>{data.acceloX}</td>
-                    <td>{data.acceloY}</td>
-                    <td>{data.acceloZ}</td>
-                    <td>{data.gyroX}</td>
-                    <td>{data.gyroY}</td>
-                    <td>{data.gyroZ}</td>
-                    <td>{data.temperature}</td>
-                  </tr>
-                ))}
+              {fetchdata.map((data, index) => (
+                <tr key={index}>
+                  <td>{data.GPSfix}</td>
+                  <td>{data.Date}</td>
+                  <td>{data.Time}</td>
+                  <td>{data.Latitude}</td>
+                  <td>{data.LatitudeDirection}</td>
+                  <td>{data.Longitude}</td>
+                  <td>{data.LongitudeDirection}</td>
+                  <td>{data.Speed}</td>
+                  <td>{data.Heading}</td>
+                  <td>{data.NoOfSatellites}</td>
+                  <td>{data.Altitude}</td>
+                  <td>{data.PDOP}</td>
+                  <td>{data.HDOP}</td>
+                  <td>{data.NetworkOperatorName}</td>
+                  <td>{data.Ignition}</td>
+                  <td>{data.MainPowerStatus}</td>
+                  <td>{data.MainInputVoltage}</td>
+                  <td>{data.EmergencyStatus}</td>
+                  <td>{data.GSMSignalStrength}</td>
+                  <td>{data.MCC}</td>
+                  <td>{data.MNC}</td>
+                  <td>{data.LAC}</td>
+                  <td>{data.CellId}</td>
+                  <td>{data.NMR}</td>
+                  <td>{data.DigitalInputStatus}</td>
+                  <td>{data.acceloX}</td>
+                  <td>{data.acceloY}</td>
+                  <td>{data.acceloZ}</td>
+                  <td>{data.gyroX}</td>
+                  <td>{data.gyroY}</td>
+                  <td>{data.gyroZ}</td>
+                  <td>{data.temperature}</td>
+                </tr>
+              ))}
             </tbody>
           </Table>
         </Row>

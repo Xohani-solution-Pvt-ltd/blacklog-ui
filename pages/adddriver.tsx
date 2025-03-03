@@ -25,13 +25,16 @@ const Adddriver = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://52.66.172.170:3000/api/v1/editprofile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "http://52.66.172.170:3000/api/v1/editprofile",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
         console.log("Data saved successfully!");
@@ -51,7 +54,7 @@ const Adddriver = () => {
   const fetchDataFromApi = async () => {
     try {
       const data = await fetchData();
-      if (data) {
+      if (data !== null) {
         console.log("Data from API:", data);
       }
     } catch (error) {
@@ -68,7 +71,7 @@ const Adddriver = () => {
       <div className="dashboard-layout">
         <Layout />
         <div className="sidebar-container">
-          <Sidebar />
+          <Sidebar isOpen={false} />
         </div>
         <div
           className="d-flex justify-content-center"

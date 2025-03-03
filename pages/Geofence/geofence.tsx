@@ -11,13 +11,20 @@ import { GoogleMap, useJsApiLoader, Polygon } from "@react-google-maps/api";
 import Layout from "@/components/Layout";
 import Sidebar from "@/components/Sidebar";
 
+interface Vehicle {
+  name: string;
+  vehicleNo: string;
+  model: string;
+  fuel: number;
+}
+
 const mapContainerStyle = {
   width: "100%",
   height: "400px",
 };
 
-const VehicleCard = ({ vehicle }) => (
-  <Card sx={{ mb: 2 }}>
+const VehicleCard: React.FC<{ vehicle: Vehicle }> = ({ vehicle }) => (
+  <Card sx={{ mb: 2, background: "#DAD8C9" }}>
     <CardContent>
       <Typography variant="h6">{vehicle.name}</Typography>
       <Typography>Vehicle No: {vehicle.vehicleNo}</Typography>
@@ -78,7 +85,7 @@ const Geofence = () => {
     <div className="dashboard-layout">
       <Layout />
       <div className="sidebar-container">
-        <Sidebar isOpen={undefined} />
+        <Sidebar isOpen={false} />
       </div>
       <div className="dashboard-content" style={{ marginTop: "50px" }}>
         <Box sx={{ p: 2 }}>

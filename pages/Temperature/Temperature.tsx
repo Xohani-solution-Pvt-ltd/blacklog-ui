@@ -13,8 +13,15 @@ import {
 import Layout from "@/components/Layout";
 import Sidebar from "@/components/Sidebar";
 
-const Temperature = () => {
-  const [gyroData, setGyroData] = useState([]);
+interface GyroData {
+  vehicleNo: string;
+  Date: string;
+  Time: string;
+  temperature: number;
+}
+
+const Temperature: React.FC = () => {
+  const [gyroData, setGyroData] = useState<GyroData[]>([]);
 
   useEffect(() => {
     const fetchGyroData = async () => {
@@ -23,6 +30,7 @@ const Temperature = () => {
           "http://52.66.172.170:3000/api/v1/fetchGyro"
         );
         const result = await response.json();
+
         if (Array.isArray(result.data)) {
           const lastData = getLastData(result.data);
           setGyroData(lastData);
@@ -35,10 +43,10 @@ const Temperature = () => {
     fetchGyroData();
   }, []);
 
-  const getLastData = (data) => {
-    const vehicleMap = {};
+  const getLastData = (data: GyroData[]): GyroData[] => {
+    const vehicleMap: Record<string, GyroData> = {};
 
-    data.forEach((entry) => {
+    data.forEach((entry: GyroData) => {
       vehicleMap[entry.vehicleNo] = entry;
     });
 
@@ -49,7 +57,7 @@ const Temperature = () => {
     <div className="dashboard-layout">
       <Layout />
       <div className="sidebar-container">
-        <Sidebar isOpen={undefined} />
+        <Sidebar isOpen={false} />
       </div>
       <div className="dashboard-content" style={{ marginTop: "50px" }}>
         <Box sx={{ p: 2 }}>
@@ -68,7 +76,7 @@ const Temperature = () => {
           </Typography>
           <Table sx={{ minWidth: 650 }} aria-label="temperature summary table">
             <TableHead>
-              <TableRow sx={{ backgroundColor: "gray" }}>
+              <TableRow sx={{ background: "#DAD8C9" }}>
                 <TableCell>Vehicle No</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Time</TableCell>

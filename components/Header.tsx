@@ -7,8 +7,12 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import MenuIcon from "@mui/icons-material/Menu";
 
-export default function Header({ onToggleSidebar }) {
-  const [dateTime, setDateTime] = useState(null);
+interface HeaderProps {
+  onToggleSidebar: () => void;
+}
+
+export default function Header({ onToggleSidebar }: HeaderProps) {
+  const [dateTime, setDateTime] = useState<Date>(new Date());
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -18,9 +22,10 @@ export default function Header({ onToggleSidebar }) {
     return () => clearInterval(intervalId);
   }, []);
 
-  const formatDateTime = (date) => {
+  const formatDateTime = (date: Date | null | undefined): string => {
     if (!date) return "";
-    const options = {
+
+    const options: Intl.DateTimeFormatOptions = {
       weekday: "short",
       year: "numeric",
       month: "short",

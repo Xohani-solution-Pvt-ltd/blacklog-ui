@@ -3,17 +3,6 @@ import Layout from "@/components/Layout";
 import Sidebar from "@/components/Sidebar";
 import { Button, Col, Row, Container } from "react-bootstrap";
 import { useRouter } from "next/router";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
 
 import {
   GoogleMap,
@@ -21,84 +10,82 @@ import {
   Marker as MarkerF,
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
-import Image from "next/image";
+import { Grid, TextField, Paper, Typography, Box } from "@mui/material";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
 );
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top" as const,
-    },
-    title: {
-      display: true,
-    },
-  },
-  elements: {
-    line: {
-      tension: 0.4,
-      borderWidth: 2,
-      borderCapStyle: "round",
-    },
-  },
-  maintainAspectRatio: false,
-  height: 400,
-  width: 800,
-};
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 
-const labels = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "september",
-  "october",
-  "november",
-  "december",
-];
-
-export const data = {
-  labels,
+const data = {
+  labels: ["2024", "2023", "2022", "2021"],
   datasets: [
     {
-      label: "Dataset 1",
-      data: labels.map(() => [57, 88, 63, 56, 45, 63]),
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
+      data: [727, 589, 537, 543],
+      label: "Line 1",
+      backgroundColor: "rgba(63,103,126,1)",
+      hoverBackgroundColor: "rgba(50,90,100,1)",
     },
     {
-      label: "Dataset 2",
-      data: labels.map(() => [55, 56, 46, 36, 47, 86]),
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
+      data: [238, 553, 746, 884],
+      label: "Line 2",
+      backgroundColor: "rgba(163,103,126,1)",
+      hoverBackgroundColor: "rgba(140,85,100,1)",
     },
     {
-      label: "Dataset 3",
-      data: labels.map(() => [45, 68, 63, 86, 45, 63]),
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
+      data: [1238, 553, 746, 884],
+      label: "Line 3",
+      backgroundColor: "rgba(63,203,226,1)",
+      hoverBackgroundColor: "rgba(46,185,235,1)",
     },
   ],
+};
+
+const options = {
+  responsive: true,
+  plugins: {
+    legend: { display: false },
+    tooltip: { enabled: false },
+  },
+  scales: {
+    x: {
+      stacked: true,
+      ticks: {
+        beginAtZero: true,
+        font: { size: 11, family: "'Open Sans Bold', sans-serif" },
+      },
+      grid: {},
+    },
+    y: {
+      stacked: true,
+      ticks: { font: { size: 11, family: "'Open Sans Bold', sans-serif" } },
+      grid: { display: false },
+    },
+  },
 };
 
 const Dashboard = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [autoSuggestions, setAutoSuggestions] = useState([]);
+  const [autoSuggestions, setAutoSuggestions] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [progressData, setProgressData] = useState({
     value1: 0,
@@ -106,30 +93,46 @@ const Dashboard = () => {
   });
   const [vehicleId, setVehicleId] = useState("");
   const [vehicleData, setVehicleData] = useState(null);
-
-  const data = {
-    labels: ["1", "2", "3", "4", "5", "6", "7"],
-    datasets: [
-      {
-        label: "Line 1",
-        data: [20, 30, 25, 35, 30, 40, 35],
-        borderColor: "green",
-        fill: false,
+  const [chartOptions, setChartOptions] = useState({
+    chart: {
+      type: "pie",
+      height: 250,
+      width: 250,
+    },
+    title: null,
+    subtitle: null,
+    tooltip: { valueSuffix: "%" },
+    credits: { enabled: false },
+    plotOptions: {
+      series: {
+        allowPointSelect: true,
+        cursor: "pointer",
+        dataLabels: [
+          { enabled: true, distance: 20 },
+          {
+            enabled: true,
+            distance: -30,
+            format: "{point.percentage:.1f}%",
+            style: { fontSize: "1em", textOutline: "none", opacity: 0.7 },
+            filter: { operator: ">", property: "percentage", value: 10 },
+          },
+        ],
       },
+    },
+    series: [
       {
-        label: "Line 2",
-        data: [40, 30, 35, 25, 30, 20, 25],
-        borderColor: "red",
-        fill: false,
-      },
-      {
-        label: "Line 3",
-        data: [30, 40, 15, 25, 40, 50, 45],
-        borderColor: "blue",
-        fill: false,
+        name: "Percentage",
+        colorByPoint: true,
+        data: [
+          { name: "1", y: 55.02 },
+          { name: "2", sliced: true, selected: true, y: 26.71 },
+          // { name: "Carbohydrates", y: 1.09 },
+          { name: "3", y: 15.5 },
+          // { name: "Ash", y: 1.68 },
+        ],
       },
     ],
-  };
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,7 +158,6 @@ const Dashboard = () => {
   }, []);
 
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY as string;
-  // console.log("mapApiKey", mapApiKey);
 
   const handleInputChange = (event: { target: { value: any } }) => {
     const value = event.target.value;
@@ -231,7 +233,7 @@ const Dashboard = () => {
           "http://52.66.172.170:3000/api/v1/fetchCar"
         );
         const data = await response.json();
-        const dataArray = [];
+        const dataArray: { vehicleNo: string }[] = [];
 
         if (data && Array.isArray(data.data)) {
           data.data.forEach((object: any) => {
@@ -322,98 +324,70 @@ const Dashboard = () => {
       <div className="dashboard-layout">
         <Layout />
         <div className="sidebar-container">
-          <Sidebar isOpen={undefined} />
+          <Sidebar isOpen={false} />
         </div>
         <div className="dashboard-content">
-          <div className="underlineStyle">
-            <Row className="dashboard-style" style={{ marginTop: "70px" }}>
-              <Col sm={6} xs={12}>
-                <h4>Dashboard</h4>
-              </Col>
-              <Col sm={6} xs={12}>
-                <div className="search-container">
-                  <input
-                    type="text"
+          <Box sx={{ borderBottom: 2, borderColor: "divider", mt: 9, pb: 2 }}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item sm={6} xs={12}>
+                <Typography variant="h6">Dashboard</Typography>
+              </Grid>
+              <Grid sm={6} xs={12}>
+                <div
+                  style={{
+                    padding: 2,
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "center",
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    label="Type model or Vehicle ID"
                     value={vehicleId}
                     onChange={(e) => setVehicleId(e.target.value)}
-                    placeholder="Type model or Vehicle ID"
+                    InputProps={{
+                      sx: {
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                      },
+                    }}
                   />
-                  <button onClick={handleSearch} className="search-button">
+                  <Button
+                    color="secondary"
+                    onClick={handleSearch}
+                    style={{
+                      height: "40px",
+                      minWidth: "120px",
+                    }}
+                  >
                     Search
-                  </button>
-                  {vehicleData && (
-                    <div className="vehicle-data">
-                      <p>Vehicle ID: {vehicleData.vid}</p>
-                      <p>Status: {vehicleData.status}</p>
-                      <p>Location: {vehicleData.location}</p>
-                    </div>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          </div>
-          <div
-            className="another-details underlineStyle"
-            style={{ marginTop: "10px" }}
-          >
-            <Row>
-              <Col sm={12} md={6}>
-                <div className="pt-2">
-                  <Button className="me-3 text-black border-0 btn-hover">
-                    Daily
                   </Button>
-                  <Button className="me-3 text-black border-0 btn-hover">
-                    Weekly
-                  </Button>
-                  <Button className="me-3 text-black border-0 btn-hover">
-                    Monthly
-                  </Button>
-                  <h6 className="float-end mbl-heading">
-                    Usage in Total Work Hour
-                  </h6>
                 </div>
-                <Line options={options} data={data} />
-              </Col>
-              <Col sm={6} xs={12} md={3}>
-                <div className="pt-2 progress-container">
-                  <h6>Fleet Performance</h6>
-                  <div className="progress blue">
-                    <span className="progress-left">
-                      <span
-                        className="progress-bar"
-                        style={{ width: `${progressData.value1}%` }}
-                      ></span>
-                    </span>
-                    <span className="progress-right">
-                      <span className="progress-bar"></span>
-                    </span>
-                    <div className="progress-value">{progressData.value1}%</div>
-                  </div>
-                </div>
-              </Col>
-              <Col sm={6} xs={12} md={3}>
-                <div className="pt-2 progress-container">
-                  <h6>Vehicle and Fuel Usage</h6>
-                  <div className="progress yellow">
-                    <span className="progress-left">
-                      <span
-                        className="progress-bar"
-                        style={{ width: `${progressData.value2}%` }}
-                      ></span>
-                    </span>
-                    <span className="progress-right">
-                      <span className="progress-bar"></span>
-                    </span>
-                    <div className="progress-value">{progressData.value2}%</div>
-                  </div>
-                </div>
-              </Col>
-            </Row>
-          </div>
+
+                {vehicleData && (
+                  <Paper elevation={1} sx={{ marginTop: 2, padding: 2 }}>
+                    <Typography variant="body1">
+                      Vehicle ID: {vehicleData.vid}
+                    </Typography>
+                    <Typography variant="body1">
+                      Status: {vehicleData.status}
+                    </Typography>
+                    <Typography variant="body1">
+                      Location: {vehicleData.location}
+                    </Typography>
+                  </Paper>
+                )}
+              </Grid>
+            </Grid>
+          </Box>
+
           <div className="divided-by-map">
             <Row>
               <Col sm={12}>
-                <h6>MAP</h6>
+                {/* <h6>MAP</h6> */}
                 <div className="map-container">
                   <GoogleMap
                     mapContainerStyle={containerStyle}
@@ -466,6 +440,103 @@ const Dashboard = () => {
                   </GoogleMap>
                 </div>
               </Col>
+            </Row>
+          </div>
+          <div
+            className="another-details underlineStyle"
+            style={{ marginTop: "20px" }}
+          >
+            <Row>
+              <Col sm={12} md={6}>
+                <div className="pt-2">
+                  <Button className="me-3 text-black border-0 btn-hover">
+                    Daily
+                  </Button>
+                  <Button className="me-3 text-black border-0 btn-hover">
+                    Weekly
+                  </Button>
+                  <Button className="me-3 text-black border-0 btn-hover">
+                    Monthly
+                  </Button>
+                  <h6 className="float-end mbl-heading">
+                    Usage in Total Work Hour
+                  </h6>
+                </div>
+
+                <div
+                  className="graph_container"
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: "16px",
+                    padding: "16px",
+                    backgroundColor: "#fff",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    marginTop: "10px",
+                  }}
+                >
+                  <Bar data={data} options={options} />
+                </div>
+              </Col>
+              <Col sm={6} xs={12} md={6}>
+                <div className="pt-2 progress-container">
+                  {/* <div className="pt-2"> */}
+                  <h6>Fleet Performance</h6>
+                  {/* <div className="progress blue" style={{ marginTop: "50px" }}>
+                    <span className="progress-left">
+                      <span
+                        className="progress-bar"
+                        style={{ width: `${progressData.value1}%` }}
+                      ></span>
+                    </span>
+                    <span className="progress-right">
+                      <span className="progress-bar"></span>
+                    </span>
+                    <div className="progress-value">{progressData.value1}%</div>
+                  </div> */}
+
+                  {/* <div className="highcharts-container">
+                    <HighchartsReact
+                      highcharts={Highcharts}
+                      options={chartOptions}
+                    />
+                  </div> */}
+                  <div
+                    className="highcharts-container"
+                    style={{
+                      border: "1px solid #ddd",
+                      borderRadius: "16px",
+                      padding: "16px",
+                      backgroundColor: "#fff",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <HighchartsReact
+                      highcharts={Highcharts}
+                      options={chartOptions}
+                    />
+                  </div>
+                </div>
+              </Col>
+              {/* <Col sm={6} xs={12} md={3}>
+                <div className="pt-2 progress-container">
+                  <h6>Vehicle and Fuel Usage</h6>
+                  <div
+                    className="progress yellow"
+                    style={{ marginTop: "50px" }}
+                  >
+                    <span className="progress-left">
+                      <span
+                        className="progress-bar"
+                        style={{ width: `${progressData.value2}%` }}
+                      ></span>
+                    </span>
+                    <span className="progress-right">
+                      <span className="progress-bar"></span>
+                    </span>
+                    <div className="progress-value">{progressData.value2}%</div>
+                  </div>
+                </div>
+              </Col> */}
             </Row>
           </div>
           <div className="bottom-controls">
