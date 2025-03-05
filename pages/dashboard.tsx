@@ -34,52 +34,21 @@ import { Bar } from "react-chartjs-2";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
-const data = {
-  labels: ["2024", "2023", "2022", "2021"],
-  datasets: [
-    {
-      data: [727, 589, 537, 543],
-      label: "Line 1",
-      backgroundColor: "rgba(63,103,126,1)",
-      hoverBackgroundColor: "rgba(50,90,100,1)",
-    },
-    {
-      data: [238, 553, 746, 884],
-      label: "Line 2",
-      backgroundColor: "rgba(163,103,126,1)",
-      hoverBackgroundColor: "rgba(140,85,100,1)",
-    },
-    {
-      data: [1238, 553, 746, 884],
-      label: "Line 3",
-      backgroundColor: "rgba(63,203,226,1)",
-      hoverBackgroundColor: "rgba(46,185,235,1)",
-    },
-  ],
-};
+interface VehicleDetails {
+  model: string;
+  year: string;
+  vehicleNo: string;
+}
 
-const options = {
-  responsive: true,
-  plugins: {
-    legend: { display: false },
-    tooltip: { enabled: false },
-  },
-  scales: {
-    x: {
-      stacked: true,
-      ticks: {
-        beginAtZero: true,
-        font: { size: 11, family: "'Open Sans Bold', sans-serif" },
-      },
-      grid: {},
-    },
-    y: {
-      stacked: true,
-      ticks: { font: { size: 11, family: "'Open Sans Bold', sans-serif" } },
-      grid: { display: false },
-    },
-  },
-};
+interface SelectedMarker {
+  details: VehicleDetails;
+}
+
+interface VehicleData {
+  vid: string;
+  status: string;
+  location: string;
+}
 
 const Dashboard = () => {
   const router = useRouter();
@@ -92,7 +61,55 @@ const Dashboard = () => {
     value2: 0,
   });
   const [vehicleId, setVehicleId] = useState("");
-  const [vehicleData, setVehicleData] = useState(null);
+  const [vehicleData, setVehicleData] = useState<VehicleData | null>(null);
+
+  const data = {
+    labels: ["2024", "2023", "2022", "2021"],
+    datasets: [
+      {
+        data: [727, 589, 537, 543],
+        label: "Line 1",
+        backgroundColor: "rgba(63,103,126,1)",
+        hoverBackgroundColor: "rgba(50,90,100,1)",
+      },
+      {
+        data: [238, 553, 746, 884],
+        label: "Line 2",
+        backgroundColor: "rgba(163,103,126,1)",
+        hoverBackgroundColor: "rgba(140,85,100,1)",
+      },
+      {
+        data: [1238, 553, 746, 884],
+        label: "Line 3",
+        backgroundColor: "rgba(63,203,226,1)",
+        hoverBackgroundColor: "rgba(46,185,235,1)",
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: false },
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: {
+          beginAtZero: true,
+          font: { size: 11, family: "'Open Sans Bold', sans-serif" },
+        },
+        grid: {},
+      },
+      y: {
+        stacked: true,
+        ticks: { font: { size: 11, family: "'Open Sans Bold', sans-serif" } },
+        grid: { display: false },
+      },
+    },
+  };
+
   const [chartOptions, setChartOptions] = useState({
     chart: {
       type: "pie",
@@ -126,9 +143,7 @@ const Dashboard = () => {
         data: [
           { name: "1", y: 55.02 },
           { name: "2", sliced: true, selected: true, y: 26.71 },
-          // { name: "Carbohydrates", y: 1.09 },
           { name: "3", y: 15.5 },
-          // { name: "Ash", y: 1.68 },
         ],
       },
     ],
@@ -193,7 +208,9 @@ const Dashboard = () => {
 
   // pins on map start
 
-  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [selectedMarker, setSelectedMarker] = useState<SelectedMarker | null>(
+    null
+  );
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
   const [vehicleNumbers, setVehicleNumbers] = useState<string[]>([]);
@@ -208,7 +225,7 @@ const Dashboard = () => {
     setGoogleMap(map);
   };
 
-  const options = useMemo<google.maps.MapOptions>(
+  const Mapoptions = useMemo<google.maps.MapOptions>(
     () => ({
       mapId: process.env.REACT_MAP_ID,
       mapTypeControl: false,
@@ -391,7 +408,8 @@ const Dashboard = () => {
                 <div className="map-container">
                   <GoogleMap
                     mapContainerStyle={containerStyle}
-                    options={options}
+                    // options={options}
+                    options={Mapoptions}
                     center={
                       markers.length > 0
                         ? markers[0].position
@@ -479,27 +497,7 @@ const Dashboard = () => {
               </Col>
               <Col sm={6} xs={12} md={6}>
                 <div className="pt-2 progress-container">
-                  {/* <div className="pt-2"> */}
                   <h6>Fleet Performance</h6>
-                  {/* <div className="progress blue" style={{ marginTop: "50px" }}>
-                    <span className="progress-left">
-                      <span
-                        className="progress-bar"
-                        style={{ width: `${progressData.value1}%` }}
-                      ></span>
-                    </span>
-                    <span className="progress-right">
-                      <span className="progress-bar"></span>
-                    </span>
-                    <div className="progress-value">{progressData.value1}%</div>
-                  </div> */}
-
-                  {/* <div className="highcharts-container">
-                    <HighchartsReact
-                      highcharts={Highcharts}
-                      options={chartOptions}
-                    />
-                  </div> */}
                   <div
                     className="highcharts-container"
                     style={{
@@ -517,26 +515,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </Col>
-              {/* <Col sm={6} xs={12} md={3}>
-                <div className="pt-2 progress-container">
-                  <h6>Vehicle and Fuel Usage</h6>
-                  <div
-                    className="progress yellow"
-                    style={{ marginTop: "50px" }}
-                  >
-                    <span className="progress-left">
-                      <span
-                        className="progress-bar"
-                        style={{ width: `${progressData.value2}%` }}
-                      ></span>
-                    </span>
-                    <span className="progress-right">
-                      <span className="progress-bar"></span>
-                    </span>
-                    <div className="progress-value">{progressData.value2}%</div>
-                  </div>
-                </div>
-              </Col> */}
             </Row>
           </div>
           <div className="bottom-controls">

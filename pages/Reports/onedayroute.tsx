@@ -9,7 +9,36 @@ import axios from "axios";
 import { Col } from "react-bootstrap";
 import Image from "next/image";
 
-const CarName = ({ car, onSelectCar }) => (
+interface Car {
+  id: string;
+  vehicleNo: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface CarNameProps {
+  car: Car;
+  onSelectCar: (car: Car) => void;
+}
+
+interface PointData {
+  latitude: string;
+  longitude: string;
+  speed: number;
+}
+
+interface VehicleData {
+  Latitude: string;
+  Longitude: string;
+  Speed: number;
+}
+interface FormattedData {
+  latitude: string;
+  longitude: string;
+  speed: number;
+}
+
+const CarName: React.FC<CarNameProps> = ({ car, onSelectCar }) => (
   <li className="carItem" onClick={() => onSelectCar(car)}>
     <p className="carItem">{car.vehicleNo}</p>
   </li>
@@ -24,24 +53,24 @@ export default function MyComponent() {
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [carNames, setCarNames] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState();
+  const [carNames, setCarNames] = useState<Car[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Car | null>(null);
+  const [error, setError] = useState<{ message: string } | null>(null);
   const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
 
   function MarkerClicked() {
     setIsInfoWindowOpen(true);
   }
 
-  const handleVehicleChange = (event) => {
+  const handleVehicleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setVehicleNumber(event.target.value);
   };
 
-  const handleDateChange = (event) => {
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(event.target.value);
   };
 
-  const handleCarSelection = (selectedCar) => {
+  const handleCarSelection = (selectedCar: Car) => {
     setVehicleNumber(selectedCar.vehicleNo);
     setSelectedVehicle(selectedCar);
 
@@ -108,7 +137,7 @@ export default function MyComponent() {
     libraries: libraries as any,
   });
 
-  const drawRouteOnMap = async (data) => {
+  const drawRouteOnMap = async (data: PointData[]) => {
     try {
       polylines.forEach((polyline) => {
         polyline.setMap(null);
@@ -117,7 +146,7 @@ export default function MyComponent() {
 
       if (data.length > 0) {
         const snappedRoadPath = await Promise.all(
-          data.map(async (point) => ({
+          data.map(async (point: PointData) => ({
             lat: parseFloat(point.latitude),
             lng: parseFloat(point.longitude),
             speed: point.speed,
@@ -245,30 +274,34 @@ export default function MyComponent() {
           }
           const data = await response.json();
           console.log("mydata====", data);
-          const dataArray = [];
+
+          const dataArray: FormattedData[] = [];
+
           if (data?.data && Array.isArray(data.data)) {
-            data.data.forEach((object) => {
+            data.data.forEach((object: VehicleData) => {
               if (
                 object.Latitude !== undefined &&
-                object.Latitude !== 0 &&
+                object.Latitude !== "0" &&
                 object.Longitude !== undefined &&
-                object.Longitude !== 0 &&
+                object.Longitude !== "0" &&
                 object.Speed !== undefined
               ) {
                 if (
                   String(object.Latitude).length > 7 &&
                   String(object.Longitude).length > 7
                 ) {
-                  const formattedData = {
-                    latitude: parseFloat(object.Latitude),
-                    longitude: parseFloat(object.Longitude),
+                  const formattedData: FormattedData = {
+                    latitude: object.Latitude,
+                    longitude: object.Longitude,
                     speed: object.Speed,
                   };
+
                   dataArray.push(formattedData);
                 }
               }
             });
           }
+
           setFetchData(dataArray);
           drawRouteOnMap(dataArray);
         } catch (error) {
@@ -290,7 +323,7 @@ export default function MyComponent() {
 
         if (FetchData.length > 0) {
           const snappedRoadPath = await Promise.all(
-            FetchData.map(async (point) => ({
+            FetchData.map(async (point: PointData) => ({
               lat: parseFloat(point.latitude),
               lng: parseFloat(point.longitude),
               speed: point.speed,
@@ -430,17 +463,15 @@ export default function MyComponent() {
     return closestIndex;
   };
 
-  const determineRouteColor = async (speedData) => {
-    const colors = [];
+  const determineRouteColor = async (
+    speedData: number[]
+  ): Promise<string[]> => {
+    const colors: string[] = [];
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
-      if (currentSpeed !== nextSpeed) {
-        colors.push(color);
-      } else {
-        colors.push(color);
-      }
+      colors.push(color);
     }
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
@@ -488,48 +519,50 @@ export default function MyComponent() {
             zoom={15}
             onClick={() => setIsInfoWindowOpen(false)}
           >
-            {selectedVehicle && (
-              <MarkerF
-                position={{
-                  lat: parseFloat(selectedVehicle.latitude),
-                  lng: parseFloat(selectedVehicle.longitude),
-                }}
-                cursor="pointer"
-                onClick={MarkerClicked}
-              >
-                {isInfoWindowOpen && (
-                  <InfoWindowF
-                    onCloseClick={() => setIsInfoWindowOpen(false)}
-                    position={center}
-                  >
-                    <div className="w-80 p-2">
-                      <div className="flex items-center mb-2 space-x-5">
-                        <Image
-                          src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                          style={{
-                            width: "56px",
-                            height: "56px",
-                            borderRadius: "50%",
-                          }}
-                          alt=""
-                        />
-                        <div>
-                          <h3 className="text-xl-font-bold">some title</h3>
-                          <p>some subtitle</p>
+            {selectedVehicle &&
+              selectedVehicle.latitude !== undefined &&
+              selectedVehicle.longitude !== undefined && (
+                <MarkerF
+                  position={{
+                    lat: parseFloat(selectedVehicle.latitude.toString()),
+                    lng: parseFloat(selectedVehicle.longitude.toString()),
+                  }}
+                  cursor="pointer"
+                  onClick={MarkerClicked}
+                >
+                  {isInfoWindowOpen && (
+                    <InfoWindowF
+                      onCloseClick={() => setIsInfoWindowOpen(false)}
+                      position={center}
+                    >
+                      <div className="w-80 p-2">
+                        <div className="flex items-center mb-2 space-x-5">
+                          <Image
+                            src="https://images.unsplash.com/photo-1682686581660-3693f0c588d2?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            style={{
+                              width: "56px",
+                              height: "56px",
+                              borderRadius: "50%",
+                            }}
+                            alt=""
+                          />
+                          <div>
+                            <h3 className="text-xl-font-bold">some title</h3>
+                            <p>some subtitle</p>
+                          </div>
                         </div>
+                        <p>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit. Voluptate, dolor nisi accusantium quia tenetur
+                          voluptatum. Laudantium suscipit dolores, obcaecati
+                          placeat autem voluptas libero aspernatur maiores ex
+                          aut, dignissimos quia inventore.
+                        </p>
                       </div>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Voluptate, dolor nisi accusantium quia tenetur
-                        voluptatum. Laudantium suscipit dolores, obcaecati
-                        placeat autem voluptas libero aspernatur maiores ex aut,
-                        dignissimos quia inventore.
-                      </p>
-                    </div>
-                  </InfoWindowF>
-                )}
-              </MarkerF>
-            )}
+                    </InfoWindowF>
+                  )}
+                </MarkerF>
+              )}
             <></>
           </GoogleMap>
         ) : (

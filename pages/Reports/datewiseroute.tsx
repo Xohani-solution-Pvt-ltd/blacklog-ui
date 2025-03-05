@@ -8,6 +8,38 @@ import {
 import axios from "axios";
 import { Col } from "react-bootstrap";
 
+interface Car {
+  id: string;
+  vehicleNo: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface CarNameProps {
+  car: Car;
+  onSelectCar: (car: Car) => void;
+}
+interface PointData {
+  latitude: string;
+  longitude: string;
+  speed: number;
+}
+interface FetchData {
+  Latitude: string | number;
+  Longitude: string | number;
+  Speed: number;
+}
+interface FormattedData {
+  latitude: number;
+  longitude: number;
+  speed: number;
+}
+interface Point {
+  latitude: string | number;
+  longitude: string | number;
+  speed: number;
+}
+
 export default function MyComponent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
@@ -16,8 +48,10 @@ export default function MyComponent() {
   const libraries = useMemo(() => ["geometry"], []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [carNames, setCarNames] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState();
+  const [carNames, setCarNames] = useState<Car[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Car | undefined>(
+    undefined
+  );
   const [selectedStartDate, setSelectedStartDate] = useState<string>("");
   const [selectedEndDate, setSelectedEndDate] = useState<string>("");
   const [startDateInput, setStartDateInput] = useState<string>("");
@@ -35,7 +69,7 @@ export default function MyComponent() {
     setSelectedEndDate(e.target.value);
   };
 
-  const CarName = ({ car, onSelectCar }) => (
+  const CarName: React.FC<CarNameProps> = ({ car, onSelectCar }) => (
     <li className="carItem" onClick={() => onSelectCar(car)}>
       <p className="carItem">{car.vehicleNo}</p>
     </li>
@@ -45,7 +79,7 @@ export default function MyComponent() {
     setIsInfoWindowOpen(true);
   }
 
-  const handleCarSelection = (selectedCar) => {
+  const handleCarSelection = (selectedCar: Car) => {
     setVehicleNumber(selectedCar.vehicleNo);
     setSelectedVehicle(selectedCar);
 
@@ -110,7 +144,7 @@ export default function MyComponent() {
     libraries: libraries as any,
   });
 
-  const drawRouteOnMap = async (data) => {
+  const drawRouteOnMap = async (data: PointData[]) => {
     try {
       polylines.forEach((polyline) => {
         polyline.setMap(null);
@@ -119,7 +153,7 @@ export default function MyComponent() {
 
       if (data.length > 0) {
         const snappedRoadPath = await Promise.all(
-          data.map(async (point) => ({
+          data.map(async (point: PointData) => ({
             lat: parseFloat(point.latitude),
             lng: parseFloat(point.longitude),
             speed: point.speed,
@@ -259,10 +293,10 @@ export default function MyComponent() {
           return;
         }
         const data = await response.json();
-        const dataArray = [];
+        const dataArray: FormattedData[] = [];
 
         if (data && Array.isArray(data.fetchdata)) {
-          data.fetchdata.forEach((object) => {
+          data.fetchdata.forEach((object: FetchData) => {
             if (
               object.Latitude !== undefined &&
               object.Latitude !== 0 &&
@@ -274,9 +308,9 @@ export default function MyComponent() {
                 String(object.Latitude).length > 7 &&
                 String(object.Longitude).length > 7
               ) {
-                const formattedData = {
-                  latitude: parseFloat(object.Latitude),
-                  longitude: parseFloat(object.Longitude),
+                const formattedData: FormattedData = {
+                  latitude: parseFloat(object.Latitude as string),
+                  longitude: parseFloat(object.Longitude as string),
                   speed: object.Speed,
                 };
                 dataArray.push(formattedData);
@@ -285,9 +319,15 @@ export default function MyComponent() {
           });
         }
         setFetchData(dataArray);
-        drawRouteOnMap(dataArray);
+        drawRouteOnMap(
+          dataArray.map((point) => ({
+            latitude: point.latitude.toString(),
+            longitude: point.longitude.toString(),
+            speed: point.speed,
+          }))
+        );
       } catch (error) {
-        console.log("Error:", error.message);
+        console.log("Error:", (error as Error).message);
       }
     };
     fetchData();
@@ -310,9 +350,9 @@ export default function MyComponent() {
         setPolylines([]);
         if (FetchData.length > 0) {
           const snappedRoadPath = await Promise.all(
-            FetchData.map(async (point) => ({
-              lat: parseFloat(point.latitude),
-              lng: parseFloat(point.longitude),
+            FetchData.map(async (point: Point) => ({
+              lat: parseFloat(point.latitude as string),
+              lng: parseFloat(point.longitude as string),
               speed: point.speed,
             }))
           );
@@ -447,19 +487,17 @@ export default function MyComponent() {
     return closestIndex;
   };
 
-  const determineRouteColor = async (speedData) => {
-    const colors = [];
+  const determineRouteColor = async (
+    speedData: number[]
+  ): Promise<string[]> => {
+    const colors: string[] = [];
+
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
 
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
-
-      if (currentSpeed !== nextSpeed) {
-        colors.push(color);
-      } else {
-        colors.push(color);
-      }
+      colors.push(color);
     }
 
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
@@ -489,7 +527,7 @@ export default function MyComponent() {
           />
           <br />
           {loading && <p>Loading...</p>}
-          {error && <p>Error: {error.message}</p>}
+          {error && <p>Error: {(error as Error).message}</p>}
 
           {carNames.length > 0 ? (
             <>

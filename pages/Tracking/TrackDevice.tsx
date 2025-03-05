@@ -30,6 +30,10 @@ import axios from "axios";
 interface Car {
   id: string;
   vehicleNo: string;
+  model: string;
+  latitude: number;
+  longitude: number;
+  speed: number;
 }
 
 interface CarNameProps {
@@ -73,13 +77,12 @@ const TrackDevice = () => {
   const [FetchData, setFetchData] = useState<any>([]);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const libraries = useMemo(() => ["geometry"], []);
-  const [carNames, setCarNames] = useState([]);
+  const [carNames, setCarNames] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<SelectedCar | null>(
     null
   );
-
   const [selectedVehicleLocation, setSelectedVehicleLocation] = useState({
     lat: 0,
     lng: 0,
@@ -144,50 +147,113 @@ const TrackDevice = () => {
       });
   }, []);
 
-  const onSelectCar = async (selectedCar: SelectedCar) => {
-    setSelectedVehicle(selectedCar);
-    const vehicleNo = selectedCar.vehicleNo;
+  // const onSelectCar = async (selectedCar: SelectedCar) => {
+  //   setSelectedVehicle(selectedCar);
+  //   const vehicleNo = selectedCar.vehicleNo;
 
+  //   try {
+  //     const response = await fetch(
+  //       `http://52.66.172.170:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
+  //     );
+
+  //     const data = await response.json();
+  //     const dataArray: {
+  //       latitude: number;
+  //       longitude: number;
+  //       speed: number;
+  //     }[] = [];
+
+  //     if (data && Array.isArray(data.selectedVehicle)) {
+  //       data.selectedVehicle.forEach((object: VehicleData) => {
+  //         if (
+  //           object.Latitude !== undefined &&
+  //           object.Latitude !== 0 &&
+  //           object.Longitude !== undefined &&
+  //           object.Longitude !== 0 &&
+  //           object.Speed !== undefined
+  //         ) {
+  //           if (
+  //             String(object.Latitude).length > 7 &&
+  //             String(object.Longitude).length > 7
+  //           ) {
+  //             const formattedData = {
+  //               latitude: parseFloat(String(object.Latitude)),
+  //               longitude: parseFloat(String(object.Longitude)),
+  //               speed: object.Speed,
+  //             };
+  //             dataArray.push(formattedData);
+  //           }
+  //         }
+  //       });
+  //     }
+
+  //     setFetchData(dataArray);
+
+  //     if (dataArray.length > 0) {
+  //       const lastLocation = dataArray[dataArray.length - 1];
+  //       setSelectedVehicleLocation({
+  //         lat: lastLocation.latitude,
+  //         lng: lastLocation.longitude,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error Fetching Data", error);
+  //   }
+  // };
+
+  const onSelectCar = async (selectedCar: Car) => {
     try {
       const response = await fetch(
-        `http://52.66.172.170:3000/api/v1/vehicleData?vehicleNo=${vehicleNo}`
+        `http://52.66.172.170:3000/api/v1/vehicleData?vehicleNo=${selectedCar.vehicleNo}`
       );
 
       const data = await response.json();
+
+      if (
+        !data ||
+        !data.selectedVehicle ||
+        !Array.isArray(data.selectedVehicle)
+      ) {
+        console.error("Invalid API response format", data);
+        return;
+      }
+
       const dataArray: {
         latitude: number;
         longitude: number;
         speed: number;
       }[] = [];
 
-      if (data && Array.isArray(data.selectedVehicle)) {
-        data.selectedVehicle.forEach((object: VehicleData) => {
-          if (
-            object.Latitude !== undefined &&
-            object.Latitude !== 0 &&
-            object.Longitude !== undefined &&
-            object.Longitude !== 0 &&
-            object.Speed !== undefined
-          ) {
-            if (
-              String(object.Latitude).length > 7 &&
-              String(object.Longitude).length > 7
-            ) {
-              const formattedData = {
-                latitude: parseFloat(String(object.Latitude)),
-                longitude: parseFloat(String(object.Longitude)),
-                speed: object.Speed,
-              };
-              dataArray.push(formattedData);
-            }
-          }
-        });
-      }
+      data.selectedVehicle.forEach((object: VehicleData) => {
+        if (
+          object.Latitude !== undefined &&
+          object.Latitude !== 0 &&
+          object.Longitude !== undefined &&
+          object.Longitude !== 0 &&
+          object.Speed !== undefined
+        ) {
+          const formattedData = {
+            latitude: parseFloat(String(object.Latitude)),
+            longitude: parseFloat(String(object.Longitude)),
+            speed: object.Speed,
+          };
+          dataArray.push(formattedData);
+        }
+      });
 
       setFetchData(dataArray);
 
       if (dataArray.length > 0) {
         const lastLocation = dataArray[dataArray.length - 1];
+
+        setSelectedVehicle({
+          vehicleNo: selectedCar.vehicleNo,
+          model: data.selectedVehicle[0].model || "Unknown Model",
+          latitude: lastLocation.latitude,
+          longitude: lastLocation.longitude,
+          speed: lastLocation.speed,
+        });
+
         setSelectedVehicleLocation({
           lat: lastLocation.latitude,
           lng: lastLocation.longitude,
@@ -312,7 +378,20 @@ const TrackDevice = () => {
 
                 {carNames.length > 0 ? (
                   carNames.map((car) => (
-                    <CarName key={car.id} car={car} onSelectCar={onSelectCar} />
+                    // <CarName key={car.id} car={car} onSelectCar={onSelectCar} />
+                    <CarName
+                      key={car.id}
+                      car={car}
+                      onSelectCar={(car) =>
+                        onSelectCar({
+                          ...car,
+                          model: "",
+                          latitude: 0,
+                          longitude: 0,
+                          speed: 0,
+                        })
+                      }
+                    />
                   ))
                 ) : (
                   <Typography sx={{ p: 2 }}>No cars available</Typography>
