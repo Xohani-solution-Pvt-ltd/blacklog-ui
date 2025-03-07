@@ -23,7 +23,50 @@ import {
   InfoWindow as InfoWindowF,
 } from "@react-google-maps/api";
 import axios from "axios";
-import Image from "next/image";
+
+type Car = {
+  id: string;
+  vehicleNo: string;
+};
+
+type CarNameProps = {
+  car: Car;
+  onSelectCar: (car: Car) => void;
+};
+
+type GPSDataPoint = {
+  latitude: string;
+  longitude: string;
+  speed: number;
+  time: string;
+};
+
+type VehicleData = {
+  vehicleNo: string;
+  latitude: number;
+  longitude: number;
+  speed: number;
+  time: string;
+  startDateInput: string;
+  endDateInput: string;
+  startTime: string;
+  endTime: string;
+};
+
+type APIResponse = {
+  fetchdata: {
+    Latitude: string;
+    Longitude: string;
+    Speed: number;
+    Time: string;
+    StartTime: string;
+    EndTime: string;
+  }[];
+};
+
+interface SummaryTableProps {
+  data: VehicleData[];
+}
 
 export default function ReportContent() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
@@ -34,7 +77,8 @@ export default function ReportContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [carNames, setCarNames] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState();
+  // const [selectedVehicle, setSelectedVehicle] = useState();
+  const [selectedVehicle, setSelectedVehicle] = useState<Car | null>(null);
   const [selectedStartDate, setSelectedStartDate] = useState<string>("");
   const [selectedEndDate, setSelectedEndDate] = useState<string>("");
   const [startDateInput, setStartDateInput] = useState<string>("");
@@ -54,7 +98,7 @@ export default function ReportContent() {
     setSelectedEndDate(e.target.value);
   };
 
-  const CarName = ({ car, onSelectCar }) => (
+  const CarName: React.FC<CarNameProps> = ({ car, onSelectCar }) => (
     <li className="carItem" onClick={() => onSelectCar(car)}>
       <p className="carItem">{car.vehicleNo}</p>
     </li>
@@ -64,7 +108,7 @@ export default function ReportContent() {
     setIsInfoWindowOpen(true);
   }
 
-  const handleCarSelection = (selectedCar) => {
+  const handleCarSelection = (selectedCar: Car) => {
     if (visibleMap === selectedCar.vehicleNo) {
       setVisibleMap(null);
     } else {
@@ -134,7 +178,139 @@ export default function ReportContent() {
     libraries: libraries as any,
   });
 
-  const drawRouteOnMap = async (data) => {
+  // const drawRouteOnMap = async (data) => {
+  //   try {
+  //     polylines.forEach((polyline) => {
+  //       polyline.setMap(null);
+  //     });
+  //     setPolylines([]);
+
+  //     if (data.length > 0) {
+  //       const snappedRoadPath = await Promise.all(
+  //         data.map(async (point) => {
+  //           if (
+  //             point &&
+  //             point.latitude &&
+  //             point.longitude &&
+  //             point.speed &&
+  //             point.time
+  //           ) {
+  //             return {
+  //               lat: parseFloat(point.latitude),
+  //               lng: parseFloat(point.longitude),
+  //               speed: point.speed,
+  //               time: point.time,
+  //             };
+  //           } else {
+  //             return null;
+  //           }
+  //         })
+  //       ).filter((point) => point !== null);
+
+  //       const speedData = snappedRoadPath.map((point) => point.speed);
+  //       const timeData = snappedRoadPath.map((point) => point.time);
+  //       const routeColor = await determineRouteColor(speedData);
+  //       let currentColor = routeColor[0];
+  //       let currentSegment = [snappedRoadPath[0]];
+
+  //       for (let i = 1; i < snappedRoadPath.length; i++) {
+  //         const color = routeColor[i];
+  //         if (color === currentColor) {
+  //           currentSegment.push(snappedRoadPath[i]);
+  //         } else {
+  //           if (i > 1 && routeColor[i - 1] !== color) {
+  //             const route = new google.maps.Polyline({
+  //               path: currentSegment,
+  //               geodesic: true,
+  //               strokeColor: currentColor,
+  //               strokeOpacity: 1.0,
+  //               strokeWeight: 2.5,
+  //               map: googleMap,
+  //             });
+
+  //             const infoWindow = new google.maps.InfoWindow();
+  //             google.maps.event.addListener(
+  //               route,
+  //               "mouseover",
+  //               async (event: any) => {
+  //                 const hoveredIndex = findHoveredIndex(
+  //                   event,
+  //                   route.getPath().getArray()
+  //                 );
+  //                 const hoveredPoint = FetchData[hoveredIndex];
+
+  //                 const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
+  //                                 <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
+  //                                 <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+  //                                </div>
+  //                                   `;
+
+  //                 infoWindow.setContent(content);
+  //                 infoWindow.setPosition(event.latLng);
+  //                 infoWindow.open(googleMap);
+  //               }
+  //             );
+
+  //             google.maps.event.addListener(route, "mouseout", (event: any) => {
+  //               infoWindow.close();
+  //             });
+
+  //             setPolylines((prevPolylines) => [...prevPolylines, route]);
+
+  //             currentSegment = [snappedRoadPath[i - 1], snappedRoadPath[i]];
+  //           } else {
+  //             currentSegment.push(snappedRoadPath[i]);
+  //           }
+  //           currentColor = color;
+  //         }
+  //       }
+
+  //       const route = new google.maps.Polyline({
+  //         path: currentSegment,
+  //         geodesic: true,
+  //         strokeColor: currentColor,
+  //         strokeOpacity: 1.0,
+  //         strokeWeight: 2.5,
+  //         map: googleMap,
+  //       });
+
+  //       const infoWindow = new google.maps.InfoWindow();
+  //       google.maps.event.addListener(
+  //         route,
+  //         "mouseover",
+  //         async (event: any) => {
+  //           const hoveredIndex = findHoveredIndex(
+  //             event,
+  //             route.getPath().getArray()
+  //           );
+  //           const hoveredPoint = FetchData[hoveredIndex];
+  //           const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
+  //                             <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
+  //                             <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
+  //                            </div>
+  //                               `;
+  //           infoWindow.setContent(content);
+  //           infoWindow.setPosition(event.latLng);
+  //           infoWindow.open(googleMap);
+  //         }
+  //       );
+
+  //       google.maps.event.addListener(route, "mouseout", () => {
+  //         infoWindow.close();
+  //       });
+
+  //       setPolylines((prevPolylines) => [...prevPolylines, route]);
+
+  //       setMapInitialized(true);
+  //     } else {
+  //       setMapInitialized(true);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error Initializing Map", error);
+  //   }
+  // };
+
+  const drawRouteOnMap = async (data: GPSDataPoint[]) => {
     try {
       polylines.forEach((polyline) => {
         polyline.setMap(null);
@@ -142,26 +318,37 @@ export default function ReportContent() {
       setPolylines([]);
 
       if (data.length > 0) {
-        const snappedRoadPath = await Promise.all(
-          data.map(async (point) => {
-            if (
-              point &&
-              point.latitude &&
-              point.longitude &&
-              point.speed &&
-              point.time
-            ) {
-              return {
-                lat: parseFloat(point.latitude),
-                lng: parseFloat(point.longitude),
-                speed: point.speed,
-                time: point.time,
-              };
-            } else {
-              return null;
-            }
-          })
-        ).filter((point) => point !== null);
+        const snappedRoadPath = (
+          await Promise.all(
+            data.map(async (point: GPSDataPoint) => {
+              if (
+                point &&
+                point.latitude &&
+                point.longitude &&
+                point.speed &&
+                point.time
+              ) {
+                return {
+                  lat: parseFloat(point.latitude),
+                  lng: parseFloat(point.longitude),
+                  speed: point.speed,
+                  time: point.time,
+                };
+              } else {
+                return null;
+              }
+            })
+          )
+        ).filter(
+          (
+            point
+          ): point is {
+            lat: number;
+            lng: number;
+            speed: number;
+            time: string;
+          } => point !== null
+        );
 
         const speedData = snappedRoadPath.map((point) => point.speed);
         const timeData = snappedRoadPath.map((point) => point.time);
@@ -195,11 +382,10 @@ export default function ReportContent() {
                   );
                   const hoveredPoint = FetchData[hoveredIndex];
 
-                  const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
-                                  <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
-                                  <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>                                 
-                                 </div>
-                                    `;
+                  const content = `<div style="background-color: #ff6e33 ;padding:2px;">
+                                    <div style="color : #ffffff"> Speed: ${hoveredPoint.speed}</div>
+                                    <div style="color : #ffffff"> Time: ${hoveredPoint.time}</div>
+                                   </div>`;
 
                   infoWindow.setContent(content);
                   infoWindow.setPosition(event.latLng);
@@ -207,7 +393,7 @@ export default function ReportContent() {
                 }
               );
 
-              google.maps.event.addListener(route, "mouseout", (event: any) => {
+              google.maps.event.addListener(route, "mouseout", () => {
                 infoWindow.close();
               });
 
@@ -240,11 +426,12 @@ export default function ReportContent() {
               route.getPath().getArray()
             );
             const hoveredPoint = FetchData[hoveredIndex];
-            const content = `<div style="background-color: #ff6e33 ;padding:2px; ">
-                              <div style="color : #ffffff"> Speed :${hoveredPoint.speed}</div>
-                              <div style="color : #ffffff"> Time :${hoveredPoint.time}</div>
-                             </div>
-                                `;
+
+            const content = `<div style="background-color: #ff6e33 ;padding:2px;">
+                              <div style="color : #ffffff"> Speed: ${hoveredPoint.speed}</div>
+                              <div style="color : #ffffff"> Time: ${hoveredPoint.time}</div>
+                             </div>`;
+
             infoWindow.setContent(content);
             infoWindow.setPosition(event.latLng);
             infoWindow.open(googleMap);
@@ -265,6 +452,81 @@ export default function ReportContent() {
       console.error("Error Initializing Map", error);
     }
   };
+
+  // useEffect(() => {
+  //   console.log("Selected Start Date:", selectedStartDate);
+  //   console.log("Selected End Date:", selectedEndDate);
+
+  //   const fetchData = async () => {
+  //     if (
+  //       !selectedVehicle ||
+  //       !selectedStartDate ||
+  //       !selectedEndDate ||
+  //       !isLoaded ||
+  //       !googleMap
+  //     ) {
+  //       return;
+  //     }
+
+  //     const apiUrl = `http://52.66.172.170:3000/api/v1/fetchvehicleGyroData?vehicleNo=${selectedVehicle.vehicleNo}&startDate=${selectedStartDate}&endDate=${selectedEndDate}`;
+
+  //     try {
+  //       const response = await fetch(apiUrl);
+
+  //       if (!response.ok) {
+  //         console.error(
+  //           `HTTP error! Status: ${response.status}, URL: ${response.url}`
+  //         );
+  //         return;
+  //       }
+  //       const data = await response.json();
+  //       const dataArray = [];
+
+  //       if (data && Array.isArray(data.fetchdata)) {
+  //         data.fetchdata.forEach((object) => {
+  //           if (
+  //             object.Latitude !== undefined &&
+  //             object.Latitude !== 0 &&
+  //             object.Longitude !== undefined &&
+  //             object.Longitude !== 0 &&
+  //             object.Speed !== undefined
+  //           ) {
+  //             if (
+  //               String(object.Latitude).length > 7 &&
+  //               String(object.Longitude).length > 7
+  //             ) {
+  //               const formattedData = {
+  //                 vehicleNo: selectedVehicle.vehicleNo,
+  //                 latitude: parseFloat(object.Latitude),
+  //                 longitude: parseFloat(object.Longitude),
+  //                 speed: object.Speed,
+  //                 time: object.Time,
+  //                 startDateInput: selectedStartDate,
+  //                 endDateInput: selectedEndDate,
+  //                 startTime: object.StartTime,
+  //                 endTime: object.EndTime,
+  //               };
+  //               dataArray.push(formattedData);
+  //             }
+  //           }
+  //         });
+  //       }
+  //       setFetchData(dataArray);
+  //       setFilteredData(dataArray); // Set filtered data for the table
+  //       drawRouteOnMap(dataArray);
+  //     } catch (error) {
+  //       console.log("Error:", error.message);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [
+  //   selectedVehicle,
+  //   selectedStartDate,
+  //   selectedEndDate,
+  //   isLoaded,
+  //   googleMap,
+  //   vehicleNumber,
+  // ]);
 
   useEffect(() => {
     console.log("Selected Start Date:", selectedStartDate);
@@ -292,23 +554,24 @@ export default function ReportContent() {
           );
           return;
         }
-        const data = await response.json();
-        const dataArray = [];
+
+        const data: APIResponse = await response.json();
+        const dataArray: VehicleData[] = [];
 
         if (data && Array.isArray(data.fetchdata)) {
           data.fetchdata.forEach((object) => {
             if (
               object.Latitude !== undefined &&
-              object.Latitude !== 0 &&
+              object.Latitude !== "0" &&
               object.Longitude !== undefined &&
-              object.Longitude !== 0 &&
+              object.Longitude !== "0" &&
               object.Speed !== undefined
             ) {
               if (
                 String(object.Latitude).length > 7 &&
                 String(object.Longitude).length > 7
               ) {
-                const formattedData = {
+                const formattedData: VehicleData = {
                   vehicleNo: selectedVehicle.vehicleNo,
                   latitude: parseFloat(object.Latitude),
                   longitude: parseFloat(object.Longitude),
@@ -324,13 +587,26 @@ export default function ReportContent() {
             }
           });
         }
+
         setFetchData(dataArray);
         setFilteredData(dataArray); // Set filtered data for the table
-        drawRouteOnMap(dataArray);
+        // drawRouteOnMap(dataArray);
+        drawRouteOnMap(
+          dataArray.map((point) => ({
+            ...point,
+            latitude: point.latitude.toString(),
+            longitude: point.longitude.toString(),
+          }))
+        );
       } catch (error) {
-        console.log("Error:", error.message);
+        if (error instanceof Error) {
+          console.log("Error:", error.message);
+        } else {
+          console.log("An unknown error occurred:", error);
+        }
       }
     };
+
     fetchData();
   }, [
     selectedVehicle,
@@ -351,7 +627,7 @@ export default function ReportContent() {
         setPolylines([]);
         if (FetchData.length > 0) {
           const snappedRoadPath = await Promise.all(
-            FetchData.map(async (point) => ({
+            FetchData.map(async (point: GPSDataPoint) => ({
               lat: parseFloat(point.latitude),
               lng: parseFloat(point.longitude),
               speed: point.speed,
@@ -466,7 +742,7 @@ export default function ReportContent() {
       initMap();
       setMapInitialized(true);
     }
-  }, [FetchData, googleMap, mapInitialized]);
+  }, [FetchData, googleMap, mapInitialized, polylines]);
 
   const findHoveredIndex = (event: any, path: any[]) => {
     const latLng = event.latLng;
@@ -486,26 +762,24 @@ export default function ReportContent() {
     return closestIndex;
   };
 
-  const determineRouteColor = async (speedData) => {
-    const colors = [];
+  const determineRouteColor = async (
+    speedData: number[]
+  ): Promise<string[]> => {
+    const colors: string[] = [];
     for (let i = 0; i < speedData.length - 1; i++) {
       const currentSpeed = speedData[i];
       const nextSpeed = speedData[i + 1];
 
       const color = currentSpeed > 40 ? "#ff0000" : "#6a5acd";
 
-      if (currentSpeed !== nextSpeed) {
-        colors.push(color);
-      } else {
-        colors.push(color);
-      }
+      colors.push(color);
     }
 
     colors.push(speedData[speedData.length - 1] > 50 ? "#ff0000" : "#6a5acd");
     return colors;
   };
 
-  const SummaryTable = ({ data }) => {
+  const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
     const summaryData = data.length > 0 ? [data[0]] : [];
 
     return (
@@ -603,7 +877,7 @@ export default function ReportContent() {
           </Grid>
 
           <Grid container spacing={2} mt={2}>
-            {carNames.map((car) => (
+            {carNames.map((car: Car) => (
               <Grid item xs={12} key={car.id}>
                 <Box
                   display="flex"
